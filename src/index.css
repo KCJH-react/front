@@ -1,0 +1,16 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@font-face {
+  font-family: 'SCDream3';
+  src: url('/assets/SCDream3.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* 필요한 커스텀 스타일도 여기에 추가 가능 */
+/* 전체 페이지 배경과 여백 (Tailwind 3.4 문법) */
+body {
+  @apply bg-gray-50;
+  font-family: 'SCDream3', sans-serif;
+}
