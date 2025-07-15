@@ -2,9 +2,15 @@ interface ButtonProps {
   children: string;
   className?: string;
   type: 'button' | 'submit' | 'reset';
+  onClick?: () => void;
 }
 
-const Button = ({ children, className = '', type = 'button' }: ButtonProps) => {
+const Button = ({
+  children,
+  className = '',
+  type = 'button',
+  onClick = () => {},
+}: ButtonProps) => {
   return (
     <button
       type={type}
@@ -20,6 +26,7 @@ const Button = ({ children, className = '', type = 'button' }: ButtonProps) => {
         disabled:cursor-not-allowed
         ${className}
       `}
+      onClick={onClick}
     >
       {children}
     </button>
