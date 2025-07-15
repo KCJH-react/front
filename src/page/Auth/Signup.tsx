@@ -7,7 +7,6 @@ import { changeTimeFormat } from '../../common/utility/utility';
 
 const Signup = () => {
   const [signupOrder, setSignupOrder] = useState(1);
-  useEffect(() => {}, [signupOrder]);
   const viewForm = () => {
     switch (signupOrder) {
       case 1:
@@ -69,9 +68,9 @@ const VerifyForm = ({ setSignupOrder }: SignupProps) => {
         onSubmit={(e) => {
           e.preventDefault();
         }}
-        className="flex flex-col sm:flex-row items-center gap-4 sm:gap-2 bg-white p-5 rounded-md shadow-md"
+        className="flex flex-col lg:flex-row items-center sm:gap-2 bg-white p-5 rounded-md shadow-md"
       >
-        <fieldset className="flex-[8]">
+        <fieldset className="flex-[9]">
           <legend>인증번호 검사</legend>
           <FormInputDetail
             formType="text"
@@ -80,23 +79,13 @@ const VerifyForm = ({ setSignupOrder }: SignupProps) => {
             placeholder=""
           />
         </fieldset>
-        <div className="flex flex-col flex-[1] md:translate-y-[28px] translate-y-[0px]">
+        <div className="flex flex-col flex-[2] md:translate-y-[14px] translate-y-[0px]">
           <Button
-            children="인증"
+            children={`인증 ${changeTimeFormat(time)}`}
             className="w-full"
             type="submit"
             onClick={() => setSignupOrder((prev) => prev + 1)}
           />
-          <p
-            style={{
-              color: 'red',
-              fontWeight: 'bolder',
-              textAlign: 'right',
-            }}
-            className="font-bold"
-          >
-            남은 시간: {changeTimeFormat(time)}
-          </p>
         </div>
       </form>
     </ScrollFadeIn>
