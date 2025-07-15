@@ -18,7 +18,7 @@ const Signup = () => {
         return <SignupForm />;
     }
   };
-  return <div className="px-60 my-10">{viewForm()}</div>;
+  return <div className="md:px-20 lg:px-60 my-10">{viewForm()}</div>;
 };
 
 type SignupProps = {
@@ -32,7 +32,7 @@ const EmailInputForm = ({ setSignupOrder }: SignupProps) => {
         onSubmit={(e) => {
           e.preventDefault();
         }}
-        className="flex items-center gap-2 bg-white p-5 round-3"
+        className="flex flex-col sm:flex-row items-center gap-4 sm:gap-2 bg-white p-5 rounded-md shadow-md"
       >
         <fieldset className="flex-[8]">
           <legend>내 이메일로 인증코드 받기</legend>
@@ -69,7 +69,7 @@ const VerifyForm = ({ setSignupOrder }: SignupProps) => {
         onSubmit={(e) => {
           e.preventDefault();
         }}
-        className="flex items-center gap-2 bg-white p-5 round-3"
+        className="flex flex-col sm:flex-row items-center gap-4 sm:gap-2 bg-white p-5 rounded-md shadow-md"
       >
         <fieldset className="flex-[8]">
           <legend>인증번호 검사</legend>
@@ -80,7 +80,7 @@ const VerifyForm = ({ setSignupOrder }: SignupProps) => {
             placeholder=""
           />
         </fieldset>
-        <div className="flex flex-col flex-[1] translate-y-[28px]">
+        <div className="flex flex-col flex-[1] md:translate-y-[28px] translate-y-[0px]">
           <Button
             children="인증"
             className="w-full"
@@ -90,10 +90,10 @@ const VerifyForm = ({ setSignupOrder }: SignupProps) => {
           <p
             style={{
               color: 'red',
-              fontSize: '25',
               fontWeight: 'bolder',
               textAlign: 'right',
             }}
+            className="font-bold"
           >
             남은 시간: {changeTimeFormat(time)}
           </p>
@@ -106,7 +106,7 @@ const SignupForm = () => {
   return (
     <ScrollFadeIn>
       <form
-        className="px-40"
+        className="mx-30 bg-white rounded-md shadow-md py-10 px-10"
         onSubmit={(e) => {
           e.preventDefault();
         }}
@@ -129,9 +129,9 @@ const SignupForm = () => {
               <div className="col-span-full">
                 <label
                   htmlFor="photo"
-                  className="block text-sm/6 font-medium text-gray-900 mb-5"
+                  className="block text-sm/6 font-medium font-bold text-gray-900 mb-5"
                 >
-                  Photo
+                  프로필 사진
                 </label>
                 <div className="mt-2 flex items-center gap-x-3">
                   <UserCircleIcon
@@ -213,7 +213,7 @@ const FormInputDetail = ({
 }: FromInputDetailProps) => {
   return (
     <div className={`my-20 gap-x-6 gap-y-8 sm:grid-cols-6 ${className}`}>
-      <div className="sm:col-span-4 flex">
+      <div className="sm:col-span-4 flex-col sm:flex-row flex sm:items-center">
         <label
           htmlFor={name}
           className="block text-gray-900 font-medium flex-1 my-auto translate-y-[5px]"
@@ -235,7 +235,7 @@ const FormInputDetail = ({
 };
 const FormRadioSex = () => {
   return (
-    <fieldset className="flex items-center justify-between my-10">
+    <fieldset className="flex justify-between flex-col sm:flex-row my-10">
       <legend className="font-medium">성별</legend>
       <div className="flex-1"></div>
       <div className="flex-1 flex justify-end">
@@ -308,7 +308,7 @@ const FormCheckChallenge = () => {
   return (
     <fieldset className="">
       <legend className="font-medium mb-10">선호 챌린지 선택</legend>
-      <div className="flex justify">
+      <div className="flex flex-col lg:flex-row">
         {Challenges.map((c) => {
           return <ChallengeCheckBox name={c} />;
         })}
@@ -318,8 +318,8 @@ const FormCheckChallenge = () => {
 };
 const FormSelectDate = () => {
   return (
-    <div className="flex my-5">
-      <p className="flex-1 font-medium">생년월일</p>
+    <div className="flex flex-col sm:flex-row items-start sm:items-center my-5">
+      <p className="flex-1 font-medium sm:mb-0">생년월일</p>
       <div className="flex-1 flex justify-end translate-y-[20px]">
         <DatePicker
           className="block w-full rounded-md bg-white px-3 py-1.5 text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-green-500 sm:text-sm/6"
