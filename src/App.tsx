@@ -2,9 +2,10 @@ import { Routes, Route, Outlet } from 'react-router-dom';
 import Header from './common/component/Header';
 import Footer from './common/component/Footer';
 import Main from './page/Main';
-import Signin from './page/Authentication/Signin';
-import Signup from './page/Authentication/Signup';
-import Mypage from './page/Authentication/Mypage';
+import Signin from './page/Auth/Signin';
+import Signup from './page/Auth/Signup';
+import Mypage from './page/Auth/Mypage';
+import 'react-datepicker/dist/react-datepicker.css';
 
 function App() {
   return (

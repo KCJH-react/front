@@ -1,14 +1,16 @@
 interface ButtonProps {
   children: string;
   className?: string;
+  type: 'button' | 'submit' | 'reset';
 }
 
-const Button = ({ children, className = '' }: ButtonProps) => {
+const Button = ({ children, className = '', type = 'button' }: ButtonProps) => {
   return (
     <button
+      type={type}
       className={`
         rounded-sm
-        bg-[#A9D18E] //00EA5E B2C8B2 A8C3A0 C2D6A4 A9D18E D2E4C4 
+        bg-[#00EA5E] //00EA5E B2C8B2 A8C3A0 C2D6A4 A9D18E D2E4C4 
         text-white
         px-4 py-2
         transition
