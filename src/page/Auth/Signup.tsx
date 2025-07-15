@@ -1,94 +1,99 @@
-import { PhotoIcon, UserCircleIcon } from '@heroicons/react/24/solid';
+import { UserCircleIcon } from '@heroicons/react/24/solid';
 import DatePicker from 'react-datepicker';
+import { ScrollFadeIn } from '../../common/animation/Ani';
 
 const Signup = () => {
   return (
     <div className="px-60 my-10">
-      <form
-        className="px-40"
-        onSubmit={(e) => {
-          e.preventDefault();
-        }}
-      >
-        <div className="space-y-8">
-          <fieldset>
-            <div className="border-b border-gray-900/10 pb-12">
-              <legend className="text-base/7 font-semibold text-gray-900">
-                회원정보
-              </legend>
-              <p className="mt-1 text-sm/6 text-gray-600">
-                This information will be displayed publicly so be careful what
-                you share.
-              </p>
-            </div>
+      <ScrollFadeIn>
+        <form
+          className="px-40"
+          onSubmit={(e) => {
+            e.preventDefault();
+          }}
+        >
+          <div className="space-y-8">
+            <fieldset>
+              <div className="border-b border-gray-900/10 pb-12">
+                <legend>
+                  <h2 className="text-xl font-bold text-gray-900">
+                    회원정보 입력
+                  </h2>
+                </legend>
+                <p className="mt-1 text-sm/6 text-gray-600">
+                  This information will be displayed publicly so be careful what
+                  you share.
+                </p>
+              </div>
 
-            <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-              <div className="col-span-full">
-                <label
-                  htmlFor="photo"
-                  className="block text-sm/6 font-medium text-gray-900"
-                >
-                  Photo
-                </label>
-                <div className="mt-2 flex items-center gap-x-3">
-                  <UserCircleIcon
-                    aria-hidden="true"
-                    className="size-12 text-gray-300"
-                  />
-                  <button
-                    type="button"
-                    className="rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+              <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+                <div className="col-span-full">
+                  <label
+                    htmlFor="photo"
+                    className="block text-sm/6 font-medium text-gray-900 mb-5"
                   >
-                    Change
-                  </button>
+                    Photo
+                  </label>
+                  <div className="mt-2 flex items-center gap-x-3">
+                    <UserCircleIcon
+                      aria-hidden="true"
+                      className="size-12 text-gray-300"
+                    />
+                    <button
+                      type="button"
+                      className="rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+                    >
+                      Change
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <FormRadioSex />
-            <FormSelectDate />
-            <FormInputDetail
-              formType="text"
-              subject="이름"
-              name="username"
-              placeholder="홍길동"
-            />
-            <FormInputDetail
-              formType="email"
-              subject="이메일"
-              name="email"
-              placeholder="example@gmail.com"
-            />
-            <FormInputDetail
-              formType="password"
-              subject="비밀번호"
-              name="password"
-              placeholder="qwer1234"
-            />
-            <FormInputDetail
-              formType="text"
-              subject="현재 이루고 싶은 목표"
-              name="goal"
-              placeholder="해외여행 비용 모으기"
-            />
-            <FormCheckChallenge />
-          </fieldset>
-        </div>
-        <div className="mt-6 flex items-center justify-end gap-x-6">
-          <button
-            type="button"
-            className="text-sm/6 font-semibold text-gray-900"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-          >
-            Save
-          </button>
-        </div>
-      </form>
+              <FormRadioSex />
+              <FormSelectDate />
+              <FormInputDetail
+                formType="text"
+                subject="이름"
+                name="username"
+                placeholder="홍길동"
+              />
+              <FormInputDetail
+                formType="email"
+                subject="이메일"
+                name="email"
+                placeholder="example@gmail.com"
+              />
+              <FormInputDetail
+                formType="password"
+                subject="비밀번호"
+                name="password"
+                placeholder="qwer1234"
+              />
+              <FormInputDetail
+                formType="text"
+                subject="현재 이루고 싶은 목표"
+                name="goal"
+                placeholder="해외여행 비용 모으기"
+              />
+              <FormCheckChallenge />
+            </fieldset>
+          </div>
+          <div className="mt-6 flex items-center justify-end gap-x-6">
+            <button
+              type="reset"
+              className="text-sm/6 font-semibold text-gray-900"
+            >
+              reset
+            </button>
+            <button
+              type="submit"
+              className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+            >
+              Save
+            </button>
+          </div>
+        </form>
+      </ScrollFadeIn>
     </div>
   );
 };
@@ -189,7 +194,7 @@ const FormCheckChallenge = () => {
           id={name}
           type="checkbox"
           value={name}
-          className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+          className="translate-y-[3px] w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
         />
         <label
           htmlFor={name}

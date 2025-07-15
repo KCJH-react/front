@@ -1,6 +1,11 @@
 import logo from '../../assets/logo.png';
+import { useNavigate } from 'react-router-dom';
 
 const Header = () => {
+  const navigate = useNavigate();
+  const naviPage = (uri: string) => {
+    navigate(uri);
+  };
   return (
     <header className="bg-white">
       <nav
@@ -8,7 +13,12 @@ const Header = () => {
         className="mx-auto flex max-w-7xl p-6  lg:justify-between lg:px-6"
       >
         <div className="flex-2">
-          <a href="#">
+          <a
+            href="#"
+            onClick={() => {
+              naviPage('/');
+            }}
+          >
             <span className="sr-only">Your Company</span>
             <img alt="" src={logo} className="h-12 w-auto" />
           </a>
@@ -46,7 +56,13 @@ const Header = () => {
           </a>
         </div>
         <div className="hidden lg:flex lg:flex-2 lg:justify-end m-auto">
-          <a href="#" className="text-sm/6 text-gray-900">
+          <a
+            href="#"
+            className="text-sm/6 text-gray-900 font-bold"
+            onClick={() => {
+              naviPage('/auth/signin');
+            }}
+          >
             Log in <span aria-hidden="true">&rarr;</span>
           </a>
         </div>
