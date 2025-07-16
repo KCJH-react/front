@@ -31,9 +31,9 @@ const EmailInputForm = ({ setSignupOrder }: SignupProps) => {
         onSubmit={(e) => {
           e.preventDefault();
         }}
-        className="flex flex-col sm:flex-row items-center gap-4 sm:gap-2 bg-white p-5 rounded-md shadow-md"
+        className="grid sm:grid-col-1 items-center gap-4 sm:gap-2 bg-white p-8 rounded-md shadow-md"
       >
-        <fieldset className="flex-[8]">
+        <fieldset className="">
           <legend>내 이메일로 인증코드 받기</legend>
           <FormInputDetail
             formType="email"
@@ -68,9 +68,9 @@ const VerifyForm = ({ setSignupOrder }: SignupProps) => {
         onSubmit={(e) => {
           e.preventDefault();
         }}
-        className="flex flex-col lg:flex-row items-center sm:gap-2 bg-white p-5 rounded-md shadow-md"
+        className="grid sm:grid-col-1 sm:gap-2 bg-white p-8 rounded-md shadow-md"
       >
-        <fieldset className="flex-[9]">
+        <fieldset className="">
           <legend>인증번호 검사</legend>
           <FormInputDetail
             formType="text"
@@ -79,7 +79,7 @@ const VerifyForm = ({ setSignupOrder }: SignupProps) => {
             placeholder=""
           />
         </fieldset>
-        <div className="flex flex-col flex-[2] md:translate-y-[14px] translate-y-[0px]">
+        <div className="">
           <Button
             children={`인증 ${changeTimeFormat(time)}`}
             className="w-full"

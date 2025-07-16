@@ -6,6 +6,7 @@ import Signin from './page/Auth/Signin';
 import Signup from './page/Auth/Signup';
 import Mypage from './page/Auth/Mypage';
 import 'react-datepicker/dist/react-datepicker.css';
+import Items from './page/Items/Items';
 
 function App() {
   return (
@@ -18,6 +19,9 @@ function App() {
           <Route path="signin" element={<Signin />} />
           <Route path="signup" element={<Signup />} />
           <Route path="mypage" element={<Mypage />} />
+        </Route>
+        <Route path="/items" element={<Home />}>
+          <Route path="" element={<Items />} />
         </Route>
       </Routes>
     </>
