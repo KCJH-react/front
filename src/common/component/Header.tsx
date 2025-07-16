@@ -10,9 +10,9 @@ const Header = () => {
     <header className="bg-white">
       <nav
         aria-label="Global"
-        className="mx-auto flex max-w-7xl p-6  lg:justify-between lg:px-6"
+        className="grid grid-cols-1 md:grid-cols-[auto,1fr,auto]  p-6"
       >
-        <div className="flex-2">
+        <div className="p-5 m-auto md:m-0">
           <a
             href="#"
             onClick={() => {
@@ -23,7 +23,7 @@ const Header = () => {
             <img alt="" src={logo} className="h-12 w-auto" />
           </a>
         </div>
-        <div className="flex-1 flex justify-around px-10 mx-10 my-auto">
+        <div className="m-5 w-full grid grid-cols-1 md:grid-cols-5 gap-5 justify-self-center">
           <a
             href="#"
             className="flex-1 text-center text-md/6 font-bold text-gray-900"
@@ -55,10 +55,10 @@ const Header = () => {
             마이페이지
           </a>
         </div>
-        <div className="hidden lg:flex lg:flex-2 lg:justify-end m-auto">
+        <div className="p-5 ml-auto">
           <a
             href="#"
-            className="text-sm/6 text-gray-900 font-bold"
+            className="text-gray-900 font-bold"
             onClick={() => {
               naviPage('/auth/signin');
             }}
