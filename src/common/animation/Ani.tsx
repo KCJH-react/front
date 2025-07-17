@@ -44,7 +44,7 @@ export const ScrollFadeIn = ({
   yOffset = 20,
 }: ScrollFadeInProps) => {
   const controls = useAnimation();
-  const [ref, inView] = useInView({ triggerOnce: true });
+  const [ref, inView] = useInView({ triggerOnce: false });
 
   useEffect(() => {
     if (inView) {

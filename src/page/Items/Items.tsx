@@ -1,4 +1,5 @@
-'use client';
+import { useState } from 'react';
+import { ScrollFadeIn } from '../../common/animation/Ani';
 
 type Item = {
   name: string;
@@ -52,27 +53,27 @@ const items: Item[] = [
     recentOrder: 156,
   },
 ];
+type ItemCardProps = {
+  item: Item;
+  openModal: (item: Item) => void;
+};
 
-const ItemCard = ({ item }: { item: Item }) => {
+const ItemCard = ({ item, openModal }: ItemCardProps) => {
   const { name, itemImg, rating, points, recentOrder } = item;
-
   return (
     <div className="group relative bg-white rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100 overflow-hidden">
-      {/* 배경 효과 */}
       <div className="absolute inset-0 bg-indigo-50/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-      {/* 인기 상품 배지 */}
       {recentOrder && recentOrder > 150 && (
         <div
           className="absolute top-4 left-4 z-10 text-white text-xs font-bold px-3 py-1 rounded-md shadow-lg"
           style={{ backgroundColor: '#00EA5E' }}
         >
-          <span className="inline-block mr-1">📈</span>
-          인기
+          <span className="inline-block mr-1">🔥</span>
+          HOT
         </div>
       )}
 
-      {/* 이미지 섹션 */}
       <div className="relative p-6 pb-4">
         <div className="relative overflow-hidden rounded-md bg-gray-50 group-hover:bg-gray-100 transition-colors duration-300">
           <img
@@ -143,6 +144,7 @@ const ItemCard = ({ item }: { item: Item }) => {
             onMouseLeave={(e) => {
               e.currentTarget.style.backgroundColor = '#00EA5E';
             }}
+            onClick={() => openModal(item)}
           >
             <div className="flex items-center gap-2">
               <span className="group-hover/btn:animate-bounce">🛒</span>
@@ -158,17 +160,20 @@ const ItemCard = ({ item }: { item: Item }) => {
       </div>
 
       {/* 카드 테두리 글로우 효과 */}
-      <div
-        className="absolute inset-0 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
-        style={{
-          boxShadow: 'inset 0 0 0 1px rgba(99, 102, 241, 0.3)',
-        }}
-      />
+      <div className="absolute inset-0 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
     </div>
   );
 };
 
 const Items = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectItem, setSelectItem] = useState<Item>();
+
+  const openModal = (item: Item) => {
+    setSelectItem(item);
+    setIsOpen(true);
+  };
+  const closeModal = () => setIsOpen(false);
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4">
       <div className="max-w-7xl mx-auto">
@@ -182,14 +187,94 @@ const Items = () => {
           </p>
         </div>
 
-        {/* 상품 그리드 */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {items.map((item, index) => (
-            <ItemCard key={index} item={item} />
+            <ScrollFadeIn>
+              <ItemCard key={index} item={item} openModal={openModal} />
+            </ScrollFadeIn>
           ))}
         </div>
+        {isOpen && selectItem ? (
+          <ItemModal closeModal={closeModal} item={selectItem} />
+        ) : null}
       </div>
     </div>
+  );
+};
+type ItemModalProps = {
+  closeModal: React.Dispatch<React.SetStateAction<void>>;
+  item: Item;
+};
+const ItemModal = ({ closeModal, item }: ItemModalProps) => {
+  const { name, points } = item;
+  return (
+    <>
+      <div
+        className="fixed top-0 left-0 z-50 w-full h-full bg-black bg-opacity-50 flex justify-center items-center"
+        onClick={() => closeModal()}
+      >
+        <div
+          className="relative bg-white rounded-lg shadow dark:bg-gray-700 w-full max-w-md p-4"
+          onClick={(e) => e.stopPropagation()} // 모달 바깥 클릭 시 닫기 방지
+        >
+          <button
+            type="button"
+            onClick={() => closeModal()}
+            className="absolute top-3 right-3 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 flex items-center justify-center dark:hover:bg-gray-600 dark:hover:text-white"
+          >
+            <svg
+              className="w-3 h-3"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 14 14"
+            >
+              <path
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+              />
+            </svg>
+            <span className="sr-only">Close modal</span>
+          </button>
+
+          <div className="text-center p-5">
+            <svg
+              className="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 20 20"
+            >
+              <path
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+              />
+            </svg>
+            <h3 className="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+              {name} 교환 시 포인트가 차감됩니다. 계속 진행하시겠습니까?
+            </h3>
+            <button
+              onClick={() => closeModal()}
+              className="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center"
+            >
+              {points} 포인트 차감
+            </button>
+            <button
+              onClick={() => closeModal()}
+              className="py-2.5 px-5 ml-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
+            >
+              취소
+            </button>
+          </div>
+        </div>
+      </div>
+    </>
   );
 };
 
