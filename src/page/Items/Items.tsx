@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import { ScrollFadeIn } from '../../common/animation/Ani';
+import { useEffect, useState } from 'react';
+import { LoadingAni, ScrollFadeIn } from '../../common/animation/Ani';
+import { Modal } from '../../common/component/modals';
 
 type Item = {
   name: string;
@@ -201,80 +202,81 @@ const Items = () => {
     </div>
   );
 };
+
 type ItemModalProps = {
-  closeModal: React.Dispatch<React.SetStateAction<void>>;
-  item: Item;
+  closeModal: () => void;
+  item: {
+    name: string;
+    points: number;
+  };
 };
+
 const ItemModal = ({ closeModal, item }: ItemModalProps) => {
   const { name, points } = item;
+  const [itemFetch, setItemFetch] = useState(false);
+  const [error, setError] = useState<Error>();
+  const handleExchange = async () => {
+    setItemFetch(true);
+    try {
+      // 예: await fetch or axios 요청
+      await new Promise((res) => setTimeout(res, 5000)); // 임시 딜레이
+      // 통신 성공 시 로직 추가
+      closeModal();
+    } catch (error) {
+      if (error instanceof Error) {
+        setError(error);
+      } else {
+        setError(new Error('알 수 없는 오류가 발생했습니다.'));
+      }
+    } finally {
+      setItemFetch(false);
+    }
+  };
+  const Fetch = () => {
+    if (itemFetch) return <LoadingAni />;
+    if (error) return <div>error</div>;
+    return (
+      <h3 className="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+        {name} 교환 시 포인트가 차감됩니다. 계속 진행하시겠습니까?
+      </h3>
+    );
+  };
   return (
-    <>
-      <div
-        className="fixed top-0 left-0 z-50 w-full h-full bg-black bg-opacity-50 flex justify-center items-center"
-        onClick={() => closeModal()}
-      >
-        <div
-          className="relative bg-white rounded-lg shadow dark:bg-gray-700 w-full max-w-md p-4"
-          onClick={(e) => e.stopPropagation()} // 모달 바깥 클릭 시 닫기 방지
+    <Modal closeModal={closeModal}>
+      <div className="text-center p-5">
+        <svg
+          className="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200"
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 20 20"
         >
-          <button
-            type="button"
-            onClick={() => closeModal()}
-            className="absolute top-3 right-3 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 flex items-center justify-center dark:hover:bg-gray-600 dark:hover:text-white"
-          >
-            <svg
-              className="w-3 h-3"
-              aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 14 14"
-            >
-              <path
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
-              />
-            </svg>
-            <span className="sr-only">Close modal</span>
-          </button>
+          <path
+            stroke="currentColor"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+          />
+        </svg>
 
-          <div className="text-center p-5">
-            <svg
-              className="mx-auto mb-4 text-gray-400 w-12 h-12 dark:text-gray-200"
-              aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 20 20"
-            >
-              <path
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-              />
-            </svg>
-            <h3 className="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
-              {name} 교환 시 포인트가 차감됩니다. 계속 진행하시겠습니까?
-            </h3>
-            <button
-              onClick={() => closeModal()}
-              className="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center"
-            >
-              {points} 포인트 차감
-            </button>
-            <button
-              onClick={() => closeModal()}
-              className="py-2.5 px-5 ml-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
-            >
-              취소
-            </button>
-          </div>
-        </div>
+        <Fetch />
+        <button
+          onClick={() => {
+            handleExchange();
+          }}
+          className="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center"
+        >
+          {points} 포인트 차감
+        </button>
+        <button
+          onClick={closeModal}
+          className="py-2.5 px-5 ml-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
+        >
+          취소
+        </button>
       </div>
-    </>
+    </Modal>
   );
 };
 

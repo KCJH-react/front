@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
+import { LoadingAni } from '../common/animation/Ani';
 
 type UserData = {
   id: number;
@@ -14,7 +15,7 @@ const useGetQuery = (uri: string) => {
       return response.data;
     },
     select: (data) => {
-      console.log('성공', data);
+      console.log(Date() + ' query 성공', data);
       return data;
     },
     refetchInterval: 500000, // 5초마다 자동 refetch
@@ -23,19 +24,23 @@ const useGetQuery = (uri: string) => {
   });
   return { data, isLoading, error };
 };
-type componentProps<T> = {
+type QueryProps<T> = {
+  uri?: string;
   onSuccess: (data: T) => JSX.Element;
   onLoading?: () => JSX.Element;
   onFailed?: () => JSX.Element;
 };
-const Queryview = <T,>({
+export const QueryRender = <T,>({
+  uri = 'https://jsonplaceholder.typicode.com/users/1', // 샘플 통신
   onSuccess,
-  onLoading = () => <>로딩중...</>,
+  onLoading = () => (
+    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+      <LoadingAni />
+    </div>
+  ),
   onFailed = () => <>통신 error</>,
-}: componentProps<T>) => {
-  const { data, isLoading, error } = useGetQuery(
-    'https://jsonplaceholder.typicode.com/users/1',
-  );
+}: QueryProps<T>) => {
+  const { data, isLoading, error } = useGetQuery(uri);
   if (isLoading) return onLoading();
   if (error) return onFailed();
   return onSuccess(data!);
