@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import 'react-calendar/dist/Calendar.css';
 import { QueryRender } from '../../react-query/reactQuery';
 import { ScrollFadeIn } from '../../common/animation/Ani';
@@ -19,14 +19,57 @@ type UserData = {
   privateChallenge: number;
   referencedChallenge: number;
 };
-
-const sampleChallengeOutline: ChallengeOutline[] = [
-  { id: 1, title: '1시간 독서', points: 30, level: '쉬움' },
-  { id: 1, title: '1시간 독서', points: 30, level: '쉬움' },
-  { id: 1, title: '1시간 독서', points: 30, level: '쉬움' },
-  { id: 1, title: '1시간 독서', points: 30, level: '쉬움' },
-  { id: 1, title: '1시간 독서', points: 30, level: '쉬움' },
+type Challenge = {
+  id: number;
+  title: string;
+  points: number;
+  level: '쉬움' | '중간' | '어려움';
+  date: string;
+  isSuccess: boolean;
+};
+const sampleChallenges: Challenge[] = [
+  {
+    id: 1,
+    title: '1시간 독서',
+    points: 30,
+    level: '쉬움',
+    date: '2025/7/26',
+    isSuccess: true,
+  },
+  {
+    id: 1,
+    title: '1시간 독서',
+    points: 30,
+    level: '쉬움',
+    date: '2025/7/21',
+    isSuccess: false,
+  },
+  {
+    id: 1,
+    title: '1시간 독서',
+    points: 30,
+    level: '쉬움',
+    date: '2025/7/1',
+    isSuccess: true,
+  },
+  {
+    id: 1,
+    title: '1시간 독서',
+    points: 30,
+    level: '쉬움',
+    date: '2025/7/5',
+    isSuccess: true,
+  },
+  {
+    id: 1,
+    title: '1시간 독서',
+    points: 30,
+    level: '쉬움',
+    date: '2025/7/12',
+    isSuccess: false,
+  },
 ];
+
 const sampleUserData: UserData = {
   username: '홍길동',
   email: 'honggildong@example.com',
@@ -57,7 +100,11 @@ const MypageContents = ({ userData }: { userData: UserData }) => {
     <div className="bg-white p-4">
       {' '}
       <Profile userData={sampleUserData} />
-      <ChallengeCalendar />
+      <QueryRender<UserData>
+        onSuccess={(data) => (
+          <ChallengeCalendar userChallengeData={sampleChallenges} />
+        )}
+      ></QueryRender>
     </div>
   );
 };
@@ -71,15 +118,20 @@ const Profile = ({ userData }: { userData: UserData }) => {
     </div>
   );
 };
-const ChallengeCalendar = () => {
+
+const ChallengeCalendar = ({
+  userChallengeData,
+}: {
+  userChallengeData: Challenge[];
+}) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<number | null>(
     currentDate.getDate(),
   );
+  const currentYear = currentDate.getFullYear();
+  const currentMonth = currentDate.getMonth();
   const Calendar = () => {
     const today = new Date();
-    const currentYear = currentDate.getFullYear();
-    const currentMonth = currentDate.getMonth();
 
     // 월 이름 배열
     const monthNames = [
@@ -151,6 +203,29 @@ const ChallengeCalendar = () => {
     for (let day = 1; day <= daysInMonth; day++) {
       calendarDays.push(day);
     }
+
+    const isSuccess = (i: number) => {
+      for (var c of userChallengeData) {
+        const day = new Date(c.date).getDate();
+        if (day == i) {
+          if (c.isSuccess) {
+            return true;
+          } else false;
+        }
+      }
+    };
+    const isChallengeDay = (i: number) => {
+      for (var c of userChallengeData) {
+        const challengeDay = new Date(c.date);
+        const year = challengeDay.getFullYear();
+        const month = challengeDay.getMonth();
+        const day = challengeDay.getDate();
+        if (day == i && year == currentYear && month == currentMonth) {
+          return true;
+        }
+      }
+      return false;
+    };
 
     return (
       <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg overflow-hidden">
@@ -226,7 +301,8 @@ const ChallengeCalendar = () => {
           {calendarDays.map((day, index) => (
             <div
               key={index}
-              className="aspect-square flex items-center justify-center border-b border-r border-gray-200 last:border-r-0"
+              className={`aspect-square flex items-center justify-center border-b border-r border-gray-200 last:border-r-0
+          ${day && isChallengeDay(day) ? (isSuccess(day) ? 'bg-green-100' : 'bg-red-100') : ''}`}
             >
               {day && (
                 <button
@@ -259,13 +335,20 @@ const ChallengeCalendar = () => {
       </div>
     );
   };
-  const QueryUserChallenge = () => {
+  const CalendarDetail = () => {
+    const queryDay = (c: Challenge) => {
+      const challengeDay = new Date(c.date);
+      const year = challengeDay.getFullYear();
+      const month = challengeDay.getMonth();
+      const day = challengeDay.getDate();
+      if (day == selectedDate && year == currentYear && month == currentMonth) {
+        return true;
+      }
+      return false;
+    };
+    const matched = sampleChallenges.find((c) => queryDay(c));
     return (
-      <div className="mx-auto w-1/2 my-5 text-2xl">
-        <h2 className="ml-3 my-3 font-bold">
-          {currentDate.getFullYear()}/{currentDate.getMonth() + 1}/
-          {selectedDate} 챌린지 내역
-        </h2>
+      <div className=" max-w-4xl mx-auto my-5 text-2xl">
         <div className=" text-center text-xl text-white grid sm:grid-cols-4 grid-cols-1 gap-4 bg-[#00EA5E] shadow-xl p-4 rounded-t-md mb-1 font-bold">
           <p>Id</p>
           <p>챌린지 명</p>
@@ -273,19 +356,21 @@ const ChallengeCalendar = () => {
           <p>포인트</p>
         </div>
         <ul className=" text-center">
-          {sampleChallengeOutline.map((c, i) => {
-            return (
-              <ScrollFadeIn>
-                {' '}
-                <li className="font-bold text-xl grid sm:grid-cols-4 grid-cols-1 gap-4 bg-white shadow-xl p-4 round-4">
-                  <p>No.{c.id}</p>
-                  <p>{c.title}</p>
-                  <p>{c.level}</p>
-                  <p>{c.points}</p>
-                </li>
-              </ScrollFadeIn>
-            );
-          })}
+          {' '}
+          {matched ? (
+            <ScrollFadeIn>
+              <li className="grid sm:grid-cols-4 grid-cols-1 gap-4 text-gray-500 text-center py-10">
+                <p>No.{matched.id}</p>
+                <p>{matched.title}</p>
+                <p>{matched.level}</p>
+                <p>{matched.points}</p>
+              </li>
+            </ScrollFadeIn>
+          ) : (
+            <div className="text-gray-500 text-center py-10">
+              날짜를 선택해주세요
+            </div>
+          )}
         </ul>
       </div>
     );
@@ -294,17 +379,10 @@ const ChallengeCalendar = () => {
     <div>
       <ScrollFadeIn>
         <Calendar />
-        <QueryRender onSuccess={(data) => <QueryUserChallenge />} />
+        <CalendarDetail />
       </ScrollFadeIn>
     </div>
   );
-};
-
-type ChallengeOutline = {
-  id: number;
-  title: string;
-  points: number;
-  level: '쉬움' | '중간' | '어려움';
 };
 const UserStatistic = ({ userData }: { userData: UserData }) => {
   return (
