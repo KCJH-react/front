@@ -1,6 +1,7 @@
 import Button from '../../common/component/button';
 import { ScrollFadeIn } from '../../common/animation/Ani';
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 
 const Signin = () => {
   return (
@@ -27,9 +28,29 @@ const SignInForm = () => {
   const naviPage = (uri: string) => {
     navigate(uri);
   };
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const signinCheck = (e: React.FormEvent) => {
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()\-_=+{};:,<.>]).*$/;
+    e.preventDefault();
+    if (password.length < 8 || password.length > 13) {
+      alert('비밀번호는 8자 이상 12자 이하여야 합니다.');
+      return;
+    }
+    if (!passwordRegex.test(password)) {
+      alert('비밀번호는 대소문자와 특수문자가 하나라도 포함되어야 합니다.');
+      return;
+    }
+  };
   return (
     <ScrollFadeIn delay={0.3}>
-      <form action="#" method="POST" className="space-y-6">
+      <form
+        action="#"
+        onSubmit={(e) => signinCheck(e)}
+        method="POST"
+        className="space-y-6"
+      >
         <fieldset>
           <legend className="sr-only">Login</legend>
           <div>
@@ -47,6 +68,9 @@ const SignInForm = () => {
                 required
                 autoComplete="email"
                 className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  setEmail(e.target.value);
+                }}
               />
             </div>
           </div>
@@ -76,6 +100,9 @@ const SignInForm = () => {
                 required
                 autoComplete="current-password"
                 className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  setPassword(e.target.value);
+                }}
               />
             </div>
           </div>
