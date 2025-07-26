@@ -1,19 +1,29 @@
 import logo from '../../assets/logo.png';
+import { useNavigate } from 'react-router-dom';
 
 const Header = () => {
+  const navigate = useNavigate();
+  const naviPage = (uri: string) => {
+    navigate(uri);
+  };
   return (
-    <header className="bg-white">
+    <header className="bg-white mb-5">
       <nav
         aria-label="Global"
-        className="mx-auto flex max-w-7xl p-6  lg:justify-between lg:px-6"
+        className="grid grid-cols-1 md:grid-cols-[auto,1fr,auto]"
       >
-        <div className="flex-2">
-          <a href="#">
+        <div className="p-5 m-auto md:m-0">
+          <a
+            href="#"
+            onClick={() => {
+              naviPage('/');
+            }}
+          >
             <span className="sr-only">Your Company</span>
             <img alt="" src={logo} className="h-12 w-auto" />
           </a>
         </div>
-        <div className="flex-1 flex justify-around px-10 mx-10 my-auto">
+        <div className="m-5 w-full grid grid-cols-1 md:grid-cols-5 gap-5 justify-self-center">
           <a
             href="#"
             className="flex-1 text-center text-md/6 font-bold text-gray-900"
@@ -35,18 +45,30 @@ const Header = () => {
           <a
             href="#"
             className="flex-1 text-center text-md/6 font-bold text-gray-900"
+            onClick={() => {
+              naviPage('/items');
+            }}
           >
             포인트 교환
           </a>
           <a
             href="#"
             className="flex-1 text-center text-md/6 font-bold text-gray-900"
+            onClick={() => {
+              naviPage('/mypage');
+            }}
           >
             마이페이지
           </a>
         </div>
-        <div className="hidden lg:flex lg:flex-2 lg:justify-end m-auto">
-          <a href="#" className="text-sm/6 text-gray-900">
+        <div className="p-5 ml-auto">
+          <a
+            href="#"
+            className="text-gray-900 font-bold"
+            onClick={() => {
+              naviPage('/auth/signin');
+            }}
+          >
             Log in <span aria-hidden="true">&rarr;</span>
           </a>
         </div>
