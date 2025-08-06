@@ -32,16 +32,27 @@ const RankingPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-6">
-      <h2 className="text-xl font-bold mb-2 text-gray-600">
-        {mode === '전체' ? '전체 랭킹' : '친구 랭킹'}
-      </h2>
+    <main className="max-w-4xl mx-auto px-4 py-6">
+      <header className="mb-4">
+        <h2 className="text-xl font-bold text-gray-600">
+          {mode === '전체' ? '전체 랭킹' : '친구 랭킹'}
+        </h2>
+      </header>
 
-      <UserProfileCard {...userInfo} />
-      <RankingToggle selected={mode} onToggle={setMode} />
-      <RankingTable data={mode === '전체' ? totalData : friendData} />
-    </div>
+      <section aria-label="사용자 정보">
+        <UserProfileCard {...userInfo} />
+      </section>
+
+      <nav aria-label="랭킹 종류 선택">
+        <RankingToggle selected={mode} onToggle={setMode} />
+      </nav>
+
+      <section aria-label="랭킹 테이블">
+        <RankingTable data={mode === '전체' ? totalData : friendData} />
+      </section>
+    </main>
   );
 };
+
 
 export default RankingPage;
