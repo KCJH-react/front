@@ -1,71 +1,64 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { LoadingAni, ScrollFadeIn } from '../../common/animation/Ani';
 import { Modal } from '../../common/component/modals';
+import type { Item, ItemCardProps, ItemModalProps } from './itemType';
+import { QueryRender } from '../../react-query/reactQuery';
 
-type Item = {
-  name: string;
-  itemImg: string;
-  rating: number;
-  points: number;
-  recentOrder?: number;
+const Items = () => {
+  return (
+    <QueryRender
+      uri={'/points/getItems'}
+      onSuccess={(data: Item[]) => {
+        return <ItemsContent items={data} />;
+      }}
+    />
+  );
 };
 
-const items: Item[] = [
-  {
-    name: '스타벅스 아메리카노',
-    itemImg: '/placeholder.svg?height=200&width=200',
-    rating: 4.5,
-    points: 1500,
-    recentOrder: 123,
-  },
-  {
-    name: '투썸 케이크 기프티콘',
-    itemImg: '/placeholder.svg?height=200&width=200',
-    rating: 4.8,
-    points: 2500,
-    recentOrder: 98,
-  },
-  {
-    name: 'GS25 편의점 5천원권',
-    itemImg: '/placeholder.svg?height=200&width=200',
-    rating: 4.2,
-    points: 5000,
-    recentOrder: 210,
-  },
-  {
-    name: '이마트 상품권 1만원',
-    itemImg: '/placeholder.svg?height=200&width=200',
-    rating: 4.6,
-    points: 10000,
-    recentOrder: 76,
-  },
-  {
-    name: '영화 관람권',
-    itemImg: '/placeholder.svg?height=200&width=200',
-    rating: 4.3,
-    points: 8000,
-    recentOrder: 185,
-  },
-  {
-    name: '올리브영 상품권',
-    itemImg: '/placeholder.svg?height=200&width=200',
-    rating: 4.7,
-    points: 3000,
-    recentOrder: 156,
-  },
-];
-type ItemCardProps = {
-  item: Item;
-  openModal: (item: Item) => void;
+const ItemsContent = ({ items }: { items: Item[] }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectItem, setSelectItem] = useState<Item>();
+
+  const openModal = (item: Item) => {
+    setSelectItem(item);
+    setIsOpen(true);
+  };
+  const closeModal = () => setIsOpen(false);
+  return (
+    <div className="min-h-screen bg-gray-50 py-12 px-4">
+      <div className="max-w-7xl mx-auto">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold text-indigo-600 mb-4">
+            포인트 상품 교환
+          </h1>
+          <p className="text-lg text-gray-600">
+            다양한 상품을 포인트로 교환해보세요
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+          {items.map((item, index) => (
+            <ScrollFadeIn key={index}>
+              <ItemCard item={item} openModal={openModal} />
+            </ScrollFadeIn>
+          ))}
+        </div>
+        {isOpen && selectItem ? (
+          <ItemModal closeModal={closeModal} item={selectItem} />
+        ) : null}
+      </div>
+    </div>
+  );
 };
 
 const ItemCard = ({ item, openModal }: ItemCardProps) => {
-  const { name, itemImg, rating, points, recentOrder } = item;
+  const { title, Url, points, itemCategory } = item;
   return (
     <div className="group relative bg-white rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100 overflow-hidden">
       <div className="absolute inset-0 bg-indigo-50/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-      {recentOrder && recentOrder > 150 && (
+      {
+        // order && order > 150 &&
         <div
           className="absolute top-4 left-4 z-10 text-white text-xs font-bold px-3 py-1 rounded-md shadow-lg"
           style={{ backgroundColor: '#00EA5E' }}
@@ -73,14 +66,14 @@ const ItemCard = ({ item, openModal }: ItemCardProps) => {
           <span className="inline-block mr-1">🔥</span>
           HOT
         </div>
-      )}
+      }
 
       <div className="relative p-6 pb-4">
         <div className="relative overflow-hidden rounded-md bg-gray-50 group-hover:bg-gray-100 transition-colors duration-300">
           <img
             className="w-full h-48 object-contain p-4 group-hover:scale-105 transition-transform duration-300"
-            src={itemImg || '/placeholder.svg'}
-            alt={name}
+            src={Url || '/placeholder.svg'}
+            alt={title}
           />
           {/* 이미지 오버레이 */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -91,41 +84,17 @@ const ItemCard = ({ item, openModal }: ItemCardProps) => {
       <div className="relative px-6 pb-6">
         {/* 상품명 */}
         <h3 className="text-lg font-bold text-gray-900 mb-3 line-clamp-2 group-hover:text-indigo-600 transition-colors duration-300">
-          {name}
+          {title}
         </h3>
 
-        {/* 별점 */}
-        <div className="flex items-center gap-2 mb-4">
-          <div className="flex items-center">
-            {Array.from({ length: 5 }).map((_, index) => (
-              <svg
-                key={index}
-                className={`w-4 h-4 ${
-                  index < Math.floor(rating)
-                    ? 'text-yellow-400 fill-yellow-400'
-                    : index < rating
-                      ? 'text-yellow-400 fill-yellow-400/50'
-                      : 'text-gray-300'
-                }`}
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-              </svg>
-            ))}
-          </div>
-          <span className="text-sm font-semibold text-gray-700 bg-yellow-50 px-2 py-1 rounded-md">
-            {rating.toFixed(1)}
-          </span>
-        </div>
-
-        {/* 최근 주문 정보 */}
-        {recentOrder && (
+        {/* 주문 정보 */}
+        {
+          // order &&
           <div className="flex items-center gap-1 mb-4 text-sm text-gray-500">
             <span style={{ color: '#00EA5E' }}>📊</span>
-            <span>최근 주문 {recentOrder.toLocaleString()}건</span>
+            <span>최근 주문 100건</span>
           </div>
-        )}
+        }
 
         {/* 가격 및 버튼 */}
         <div className="flex items-center justify-between">
@@ -166,53 +135,8 @@ const ItemCard = ({ item, openModal }: ItemCardProps) => {
   );
 };
 
-const Items = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [selectItem, setSelectItem] = useState<Item>();
-
-  const openModal = (item: Item) => {
-    setSelectItem(item);
-    setIsOpen(true);
-  };
-  const closeModal = () => setIsOpen(false);
-  return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4">
-      <div className="max-w-7xl mx-auto">
-        {/* 헤더 */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-indigo-600 mb-4">
-            포인트 상품 교환
-          </h1>
-          <p className="text-lg text-gray-600">
-            다양한 상품을 포인트로 교환해보세요
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-          {items.map((item, index) => (
-            <ScrollFadeIn>
-              <ItemCard key={index} item={item} openModal={openModal} />
-            </ScrollFadeIn>
-          ))}
-        </div>
-        {isOpen && selectItem ? (
-          <ItemModal closeModal={closeModal} item={selectItem} />
-        ) : null}
-      </div>
-    </div>
-  );
-};
-
-type ItemModalProps = {
-  closeModal: () => void;
-  item: {
-    name: string;
-    points: number;
-  };
-};
-
 const ItemModal = ({ closeModal, item }: ItemModalProps) => {
-  const { name, points } = item;
+  const { title, points } = item;
   const [itemFetch, setItemFetch] = useState(false);
   const [error, setError] = useState<Error>();
   const handleExchange = async () => {
@@ -237,7 +161,7 @@ const ItemModal = ({ closeModal, item }: ItemModalProps) => {
     if (error) return <div>error</div>;
     return (
       <h3 className="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
-        {name} 교환 시 포인트가 차감됩니다. 계속 진행하시겠습니까?
+        {title} 교환 시 포인트가 차감됩니다. 계속 진행하시겠습니까?
       </h3>
     );
   };

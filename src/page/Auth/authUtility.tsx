@@ -1,21 +1,23 @@
-import axios, { Axios } from 'axios';
+import axios from 'axios';
+import type { Response } from '../../common/type';
+import type { LoginData, SigninRequest } from './authType';
 
-const login = async () => {
+export const login = async (data: SigninRequest) => {
   try {
-    const response = await axios.post('local');
+    const response: Response<LoginData> = await axios.post(
+      'http://localhost:8020/api/v1/user/signin',
+      data,
+    );
     return response.data;
   } catch (e) {
     if (axios.isAxiosError(e) && e.response) {
-      if (e.response.status >= 500) return ErrorType.CLIENTERROR;
-      else if (e.response.status >= 400) return ErrorType.SERVERERROR;
+      const errorData = e.response.data;
+      // console.log(
+      //   errorData.errorResponsev2.code +
+      //     ': ' +
+      //     errorData.errorResponsev2.message,
+      // );
+      return errorData;
     }
-    return ErrorType.UNKNOWN;
   }
 };
-export const ErrorType = {
-  CLIENTERROR: '400',
-  SERVERERROR: '500',
-  UNKNOWN: '0',
-} as const;
-
-export type ErrorType = (typeof ErrorType)[keyof typeof ErrorType];

@@ -1,3 +1,5 @@
+import axios from 'axios';
+
 export const changeTimeFormat = (num: number) => {
   let minute = Math.floor(num / 60);
   let second = num % 60;

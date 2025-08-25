@@ -132,7 +132,6 @@ const ChallengeCalendar = ({
   const currentMonth = currentDate.getMonth();
   const Calendar = () => {
     const today = new Date();
-
     // 월 이름 배열
     const monthNames = [
       '1월',

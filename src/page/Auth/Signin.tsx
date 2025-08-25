@@ -2,6 +2,7 @@ import Button from '../../common/component/button';
 import { ScrollFadeIn } from '../../common/animation/Ani';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import { login } from './authUtility';
 
 const Signin = () => {
   return (
@@ -42,6 +43,7 @@ const SignInForm = () => {
       alert('비밀번호는 대소문자와 특수문자가 하나라도 포함되어야 합니다.');
       return;
     }
+    login({ email, password });
   };
   return (
     <ScrollFadeIn delay={0.3}>
