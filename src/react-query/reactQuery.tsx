@@ -110,7 +110,7 @@ export const AxiosRender = ({
       <LoadingAni />
     </div>
   ),
-  onError = (error: string) => <>{error}통신 error</>,
+  onError = (error: string) => <>{error} error</>,
 }: AxiosRenderProps) => {
   const { data, isLoading, error } = Axios({ type, uri, props });
 
