@@ -27,13 +27,14 @@ const useGetQuery = (uri: string) => {
 };
 type QueryProps<T> = {
   uri?: string;
+  props?: T;
   onSuccess: (data: T) => JSX.Element;
   onLoading?: () => JSX.Element;
   onFailed?: () => JSX.Element;
 };
 export const QueryRender = <T,>({
   uri,
-  // = 'https://jsonplaceholder.typicode.com/users/1'
+  props,
   onSuccess,
   onLoading = () => (
     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
@@ -42,6 +43,8 @@ export const QueryRender = <T,>({
   ),
   onFailed = () => <>통신 error</>,
 }: QueryProps<T>) => {
+  if (props) {
+  }
   const { data, isLoading, error } = useGetQuery(uri!);
   if (isLoading) return onLoading();
   if (error) return onFailed();
@@ -55,7 +58,7 @@ interface AxiosProps {
 }
 
 export const Axios = ({ type, uri, props }: AxiosProps) => {
-  const [data, setData] = useState('');
+  const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -92,15 +95,15 @@ export const Axios = ({ type, uri, props }: AxiosProps) => {
   }, [type, uri, props]);
   return { data, isLoading, error };
 };
-interface AxiosRenderProps {
+interface AxiosRenderProps<T> {
   type: 'get' | 'post' | 'put' | 'delete';
   uri: string;
   props?: any;
-  onSuccess: (data: string) => JSX.Element;
+  onSuccess: (data: T) => JSX.Element;
   onLoading?: () => JSX.Element;
   onError?: (data: string) => JSX.Element;
 }
-export const AxiosRender = ({
+export const AxiosRender = <T,>({
   uri,
   type,
   props,
@@ -111,7 +114,7 @@ export const AxiosRender = ({
     </div>
   ),
   onError = (error: string) => <>{error} error</>,
-}: AxiosRenderProps) => {
+}: AxiosRenderProps<T>) => {
   const { data, isLoading, error } = Axios({ type, uri, props });
 
   if (isLoading) return onLoading();

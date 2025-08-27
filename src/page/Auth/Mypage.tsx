@@ -1,23 +1,27 @@
 import { useEffect, useState } from 'react';
 import 'react-calendar/dist/Calendar.css';
-import { QueryRender } from '../../react-query/reactQuery';
+import { AxiosRender, QueryRender } from '../../react-query/reactQuery';
 import { ScrollFadeIn } from '../../common/animation/Ani';
 import '../../index.css';
+import Signin from './Signin';
+import type { RootState } from '../../store';
+import { useSelector } from 'react-redux';
+import type { Response } from '../../common/type';
 
 type UserData = {
-  img: string;
+  img: string | null;
   username: string;
   email: string;
   points: number;
   goal: number;
-  category: string;
+  category: string[];
   sex: '남자' | '여자';
   birthday: string;
 
-  challengeTotal: number;
-  challengeSuccess: number;
-  privateChallenge: number;
-  referencedChallenge: number;
+  // challengeTotal: number;
+  // challengeSuccess: number;
+  // privateChallenge: number;
+  // referencedChallenge: number;
 };
 type Challenge = {
   id: number;
@@ -76,20 +80,27 @@ const sampleUserData: UserData = {
   points: 1250,
   img: 's',
   goal: 30,
-  category: '운동',
+  category: ['운동'],
   sex: '남자',
   birthday: '1995-06-15',
-  challengeTotal: 15,
-  challengeSuccess: 12,
-  privateChallenge: 10,
-  referencedChallenge: 20,
+  // challengeTotal: 15,
+  // challengeSuccess: 12,
+  // privateChallenge: 10,
+  // referencedChallenge: 20,
 };
 
 const Mypage = () => {
+  const userId = useSelector((state: RootState) => state.user.value);
   return (
     <>
-      <QueryRender<UserData>
-        onSuccess={(data) => <MypageContents userData={data} />}
+      <AxiosRender<Response<UserData>>
+        uri="/api/v1/user/user?userId=2"
+        type="get"
+        onSuccess={(data: Response<UserData>) => {
+          console.log(data.data);
+          return <MypageContents userData={data.data} />;
+        }}
+        onError={() => <Signin />}
       />
     </>
   );
@@ -99,7 +110,7 @@ const MypageContents = ({ userData }: { userData: UserData }) => {
   return (
     <div className="bg-white p-4">
       {' '}
-      <Profile userData={sampleUserData} />
+      <Profile userData={userData} />
       <QueryRender<UserData>
         onSuccess={(data) => (
           <ChallengeCalendar userChallengeData={sampleChallenges} />
@@ -388,7 +399,7 @@ const UserStatistic = ({ userData }: { userData: UserData }) => {
     <div className="grid grid-cols-2 row-gap-8 md:grid-cols-4">
       <div className="text-center md:border-r">
         <h6 className="text-4xl font-bold lg:text-5xl xl:text-6xl">
-          {sampleUserData.challengeSuccess}
+          {/* {sampleUserData.challengeSuccess} */}10
         </h6>
         <p className="text-sm font-medium tracking-widest text-gray-800 uppercase lg:text-base">
           참여한 챌린지
@@ -396,7 +407,7 @@ const UserStatistic = ({ userData }: { userData: UserData }) => {
       </div>
       <div className="text-center md:border-r">
         <h6 className="text-4xl font-bold lg:text-5xl xl:text-6xl">
-          {sampleUserData.privateChallenge}
+          {/* {sampleUserData.privateChallenge} */} 10
         </h6>
         <p className="text-sm font-medium tracking-widest text-gray-800 uppercase lg:text-base">
           개인 챌린지
@@ -404,9 +415,9 @@ const UserStatistic = ({ userData }: { userData: UserData }) => {
       </div>
       <div className="text-center md:border-r">
         <h6 className="text-4xl font-bold lg:text-5xl xl:text-6xl">
-          {(sampleUserData.challengeSuccess / sampleUserData.challengeTotal) *
-            100}
-          %
+          {/* {(sampleUserData.challengeSuccess / sampleUserData.challengeTotal) *
+            100} */}
+          50 %
         </h6>
         <p className="text-sm font-medium tracking-widest text-gray-800 uppercase lg:text-base">
           챌린지 성공률
@@ -414,7 +425,7 @@ const UserStatistic = ({ userData }: { userData: UserData }) => {
       </div>
       <div className="text-center">
         <h6 className="text-4xl font-bold lg:text-5xl xl:text-6xl">
-          {sampleUserData.referencedChallenge}
+          {/* {sampleUserData.referencedChallenge} */} 10
         </h6>
         <p className="text-sm font-medium tracking-widest text-gray-800 uppercase lg:text-base">
           참고된 챌린지
