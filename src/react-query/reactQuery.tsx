@@ -51,7 +51,6 @@ interface AxiosProps {
   uri: string;
   props?: any;
 }
-
 export const useAxios = ({ type, uri, props }: AxiosProps) => {
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -90,7 +89,6 @@ export const useAxios = ({ type, uri, props }: AxiosProps) => {
   }, [type, uri, props]);
   return { data, isLoading, error };
 };
-
 interface AxiosRenderProps<T> {
   type: 'get' | 'post' | 'put' | 'delete';
   uri: string;
@@ -121,4 +119,29 @@ export const AxiosRender = <T,>({
 
   if (data === null) return;
   return onSuccess(data!);
+};
+export const fetchData = async ({ type, uri, props }: AxiosProps) => {
+  try {
+    let response;
+    switch (type) {
+      case 'get':
+        response = await axios.get(`http://localhost:8020${uri}`, props);
+        break;
+      case 'delete':
+        response = await axios.delete(`http://localhost:8020${uri}`, props);
+        break;
+      case 'post':
+        response = await axios.post(`http://localhost:8020${uri}`, props);
+        break;
+      case 'put':
+        response = await axios.put(`http://localhost:8020${uri}`, props);
+        break;
+    }
+    return { data: response?.data, error: null };
+  } catch (e) {
+    if (e instanceof AxiosError) {
+      return { data: null, error: e.response?.data.errorResponsev2.message };
+    }
+    return { data: null, error: '알 수 없는 에러 발생' };
+  }
 };

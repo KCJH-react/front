@@ -1,7 +1,8 @@
 import type React from 'react';
 import { useEffect, useState } from 'react';
-import { useAxios } from '../../react-query/reactQuery';
+import { fetchData, useAxios } from '../../react-query/reactQuery';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 type Challenge =
   | '미용'
@@ -57,6 +58,7 @@ const editFieldOptions = [
 ];
 
 export default function ProfileEditPage() {
+  const navigate = useNavigate();
   const [userData, setUserData] = useState<UserData>({
     img: null,
     username: '홍길동',
@@ -83,7 +85,7 @@ export default function ProfileEditPage() {
   useEffect(() => {
     if (!send) return;
 
-    const fetchData = async () => {
+    const updateUser = async () => {
       let content;
       switch (selectedField) {
         case 'USERNAME':
@@ -105,25 +107,25 @@ export default function ProfileEditPage() {
           content = userData.password;
           break;
       }
+      const { data, error } = await fetchData({
+        type: 'put',
+        uri: '/api/v1/user/update/5',
+        props: { type: selectedField, password, content },
+      });
 
-      try {
-        const response = await axios.put(
-          'http://localhost:8020/api/v1/user/update/5',
-          {
-            type: selectedField,
-            password,
-            content,
-          },
-        );
-        console.log('성공:', response.data);
-      } catch (error) {
-        console.error('에러:', error);
-      } finally {
+      if (error) {
+        alert(`에러 발생: ${error}`);
         setSend(false);
+        return;
+      }
+      if (data) {
+        alert('회원 정보가 성공적으로 업데이트되었습니다!');
+        setSend(false);
+        navigate('/mypage');
       }
     };
 
-    fetchData();
+    updateUser();
   }, [send]);
 
   return (
