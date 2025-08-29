@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Axios, AxiosRender } from '../../react-query/reactQuery';
+import { AxiosRender } from '../../react-query/reactQuery';
 import axios from 'axios';
 
 const Signup = () => {

@@ -3,6 +3,8 @@ import { ScrollFadeIn } from '../../common/animation/Ani';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { login } from './authUtility';
+import { useDispatch, useSelector } from 'react-redux';
+import { signin } from '../../redux/sessionSlice';
 
 const Signin = () => {
   return (
@@ -26,12 +28,13 @@ const Signin = () => {
 
 const SignInForm = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const naviPage = (uri: string) => {
     navigate(uri);
   };
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const signinCheck = (e: React.FormEvent) => {
+  const signinCheck = async (e: React.FormEvent) => {
     const passwordRegex =
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()\-_=+{};:,<.>]).*$/;
     e.preventDefault();
@@ -43,7 +46,10 @@ const SignInForm = () => {
       alert('비밀번호는 대소문자와 특수문자가 하나라도 포함되어야 합니다.');
       return;
     }
-    login({ email, password });
+    const response = await login({ email, password });
+    dispatch(signin(response.data.id));
+    naviPage('/');
+    // 실패시도 처리
   };
   return (
     <ScrollFadeIn delay={0.3}>

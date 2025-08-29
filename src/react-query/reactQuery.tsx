@@ -3,11 +3,6 @@ import axios, { AxiosError } from 'axios';
 import { LoadingAni } from '../common/animation/Ani';
 import { useEffect, useState } from 'react';
 
-type UserData = {
-  id: number;
-  name: string;
-};
-
 const useGetQuery = (uri: string) => {
   const { data, isLoading, error } = useQuery({
     queryKey: [uri],
@@ -57,7 +52,7 @@ interface AxiosProps {
   props?: any;
 }
 
-export const Axios = ({ type, uri, props }: AxiosProps) => {
+export const useAxios = ({ type, uri, props }: AxiosProps) => {
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -95,6 +90,7 @@ export const Axios = ({ type, uri, props }: AxiosProps) => {
   }, [type, uri, props]);
   return { data, isLoading, error };
 };
+
 interface AxiosRenderProps<T> {
   type: 'get' | 'post' | 'put' | 'delete';
   uri: string;
@@ -113,11 +109,16 @@ export const AxiosRender = <T,>({
       <LoadingAni />
     </div>
   ),
-  onError = (error: string) => <>{error} error</>,
+  onError = (errorMessage: string) => <>{errorMessage} error</>,
 }: AxiosRenderProps<T>) => {
-  const { data, isLoading, error } = Axios({ type, uri, props });
+  const { data, isLoading, error } = useAxios({ type, uri, props });
 
   if (isLoading) return onLoading();
-  if (error) return onError(error);
+  if (error) {
+    alert(error);
+    return onError(error);
+  }
+
+  if (data === null) return;
   return onSuccess(data!);
 };

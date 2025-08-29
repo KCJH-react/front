@@ -96,9 +96,9 @@ const Mypage = () => {
       <AxiosRender<Response<UserData>>
         uri="/api/v1/user/user?userId=2"
         type="get"
-        onSuccess={(data: Response<UserData>) => {
+        onSuccess={(data) => {
           console.log(data.data);
-          return <MypageContents userData={data.data} />;
+          return <MypageContents userData={data.data!} />;
         }}
         onError={() => <Signin />}
       />
