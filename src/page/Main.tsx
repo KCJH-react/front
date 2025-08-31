@@ -217,7 +217,7 @@ const RecommendedChallenge = ({
 
       {/* 버튼 */}
       <div className="pt-2">
-        <Button children="나도 도전하기" className=""></Button>
+        <Button type="button" children="나도 도전하기" className=""></Button>
       </div>
     </div>
   );
