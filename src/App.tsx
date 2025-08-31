@@ -29,6 +29,8 @@ function App() {
         </Route>
         <Route path="/edit" element={<Home />}>
           <Route path="" element={<EditPage />} />
+         <Route path="/ranking" element={<Home />}>
+          <Route index element={<RankingPage />} />
         </Route>
       </Routes>
     </>
