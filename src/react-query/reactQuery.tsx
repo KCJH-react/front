@@ -2,6 +2,9 @@ import { useQuery } from '@tanstack/react-query';
 import axios, { AxiosError } from 'axios';
 import { LoadingAni } from '../common/animation/Ani';
 import { useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { setToken } from '../redux/tokenSlice';
+import { useAuth } from '../page/Auth/authUtility';
 
 const useGetQuery = (uri: string) => {
   const { data, isLoading, error } = useQuery({
@@ -50,29 +53,56 @@ interface AxiosProps {
   type: 'get' | 'post' | 'put' | 'delete';
   uri: string;
   props?: any;
+  accessToken?: string;
 }
 export const useAxios = ({ type, uri, props }: AxiosProps) => {
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const { accessToken } = useAuth();
 
   useEffect(() => {
     const fetchData = async () => {
+      console.log('accessToken: ' + accessToken);
       setIsLoading(true);
       try {
         let response;
+        const config = {
+          ...props,
+          withCredentials: true,
+          headers: {
+            ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+          },
+        };
+        const config2 = {
+          withCredentials: true,
+          headers: {
+            ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+          },
+        };
         switch (type) {
           case 'get':
-            response = await axios.get(`http://localhost:8020${uri}`, props);
+            response = await axios.get(`http://localhost:8020${uri}`, config);
             break;
           case 'delete':
-            response = await axios.delete(`http://localhost:8020${uri}`, props);
+            response = await axios.delete(
+              `http://localhost:8020${uri}`,
+              config,
+            );
             break;
           case 'post':
-            response = await axios.post(`http://localhost:8020${uri}`, props);
+            response = await axios.post(
+              `http://localhost:8020${uri}`,
+              props,
+              config2,
+            );
             break;
           case 'put':
-            response = await axios.put(`http://localhost:8020${uri}`, props);
+            response = await axios.put(
+              `http://localhost:8020${uri}`,
+              props,
+              config2,
+            );
             break;
         }
         setData(response!.data);
@@ -120,24 +150,51 @@ export const AxiosRender = <T,>({
   if (data === null) return;
   return onSuccess(data!);
 };
-export const fetchData = async ({ type, uri, props }: AxiosProps) => {
+
+export const fetchData = async ({
+  type,
+  uri,
+  props,
+  accessToken,
+}: AxiosProps) => {
   try {
     let response;
+    const config = {
+      ...props,
+      withCredentials: true,
+      headers: {
+        ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+      },
+    };
+    const config2 = {
+      withCredentials: true,
+      headers: {
+        ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+      },
+    };
     switch (type) {
       case 'get':
-        response = await axios.get(`http://localhost:8020${uri}`, props);
+        response = await axios.get(`http://localhost:8020${uri}`, config);
         break;
       case 'delete':
-        response = await axios.delete(`http://localhost:8020${uri}`, props);
+        response = await axios.delete(`http://localhost:8020${uri}`, config);
         break;
       case 'post':
-        response = await axios.post(`http://localhost:8020${uri}`, props);
+        response = await axios.post(
+          `http://localhost:8020${uri}`,
+          props,
+          config2,
+        );
         break;
       case 'put':
-        response = await axios.put(`http://localhost:8020${uri}`, props);
+        response = await axios.put(
+          `http://localhost:8020${uri}`,
+          props,
+          config2,
+        );
         break;
     }
-    return { data: response?.data, error: null };
+    return { data: response };
   } catch (e) {
     if (e instanceof AxiosError) {
       return { data: null, error: e.response?.data.errorResponsev2.message };

@@ -1,10 +1,12 @@
 import Button from '../../common/component/button';
 import { ScrollFadeIn } from '../../common/animation/Ani';
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
-import { login } from './authUtility';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { signin } from '../../redux/sessionSlice';
+import { fetchData } from '../../react-query/reactQuery';
+import { setToken } from '../../redux/tokenSlice';
+import { useAuthSave } from './authUtility';
 
 const Signin = () => {
   return (
@@ -34,6 +36,7 @@ const SignInForm = () => {
   };
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [send, setSend] = useState(false);
   const signinCheck = async (e: React.FormEvent) => {
     const passwordRegex =
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()\-_=+{};:,<.>]).*$/;
@@ -46,11 +49,42 @@ const SignInForm = () => {
       alert('비밀번호는 대소문자와 특수문자가 하나라도 포함되어야 합니다.');
       return;
     }
-    const response = await login({ email, password });
-    dispatch(signin(response.data.id));
-    naviPage('/');
-    // 실패시도 처리
+    setSend(true);
   };
+  const authSave = useAuthSave();
+  useEffect(() => {
+    const login = async () => {
+      const { data: axiosResponse, error } = await fetchData({
+        type: 'post',
+        uri: '/api/v1/user/signin',
+        props: { email, password },
+      });
+
+      if (axiosResponse) {
+        // ✅ 안전하게 headers 접근
+        let token =
+          axiosResponse.headers['authorization'] ||
+          axiosResponse.headers['Authorization'];
+
+        if (token) {
+          console.log(axiosResponse.data.data.id);
+          console.log('Access Token:', token);
+          authSave({
+            userId: axiosResponse.data.data.id,
+            accessToken: token,
+          });
+          naviPage('/');
+        } else {
+          console.error('Access token not found in headers');
+        }
+      } else {
+        console.error(error);
+      }
+      if (error) console.log(error);
+    };
+
+    login();
+  }, [send]);
   return (
     <ScrollFadeIn delay={0.3}>
       <form
@@ -91,14 +125,6 @@ const SignInForm = () => {
               >
                 Password
               </label>
-              <div className="text-sm">
-                <a
-                  href="#"
-                  className="font-semibold text-indigo-500 hover:text-indigo-700"
-                >
-                  Forgot password?
-                </a>
-              </div>
             </div>
             <div className="mt-2">
               <input

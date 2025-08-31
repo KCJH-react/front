@@ -1,24 +1,23 @@
-import axios from 'axios';
-import type { Response } from '../../common/type';
-import type { LoginData, SigninRequest } from './authType';
+import { useDispatch, useSelector } from 'react-redux';
+import { signin } from '../../redux/sessionSlice';
+import { setToken } from '../../redux/tokenSlice';
+import type { RootState } from '../../store';
 
-export const login = async (data: SigninRequest) => {
-  try {
-    const response: Response<LoginData> = await axios.post(
-      'http://localhost:8020/api/v1/user/signin',
-      data,
-    );
-    console.log(response.data);
-    return response.data;
-  } catch (e) {
-    if (axios.isAxiosError(e) && e.response) {
-      const errorData = e.response.data;
-      console.log(
-        errorData.errorResponsev2.code +
-          ': ' +
-          errorData.errorResponsev2.message,
-      );
-      return errorData;
-    }
-  }
+export const useAuth = () => {
+  const userId = useSelector((state: RootState) => state.user.value);
+  const accessToken = useSelector((state: RootState) => state.token.value);
+  return { userId, accessToken };
+};
+interface useAuthSaveProps {
+  userId: number;
+  accessToken: string;
+}
+export const useAuthSave = () => {
+  const dispatch = useDispatch();
+
+  return ({ userId, accessToken }: useAuthSaveProps) => {
+    dispatch(signin(userId));
+    dispatch(setToken(accessToken));
+    console.log('회원정보 저장');
+  };
 };

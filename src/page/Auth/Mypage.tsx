@@ -7,9 +7,10 @@ import Signin from './Signin';
 import type { RootState } from '../../store';
 import { useSelector } from 'react-redux';
 import type { Response } from '../../common/type';
+import { Link } from 'react-router-dom';
 
 type UserData = {
-  img: string | null;
+  imgUrl: string | null;
   username: string;
   email: string;
   points: number;
@@ -74,27 +75,12 @@ const sampleChallenges: Challenge[] = [
   },
 ];
 
-const sampleUserData: UserData = {
-  username: '홍길동',
-  email: 'honggildong@example.com',
-  points: 1250,
-  img: 's',
-  goal: 30,
-  category: ['운동'],
-  sex: '남자',
-  birthday: '1995-06-15',
-  // challengeTotal: 15,
-  // challengeSuccess: 12,
-  // privateChallenge: 10,
-  // referencedChallenge: 20,
-};
-
 const Mypage = () => {
   const userId = useSelector((state: RootState) => state.user.value);
   return (
     <>
       <AxiosRender<Response<UserData>>
-        uri="/api/v1/user/user?userId=2"
+        uri={`/api/v1/user?userId=${userId}`}
         type="get"
         onSuccess={(data) => {
           console.log(data.data);
@@ -473,7 +459,7 @@ function UserDetails({ userData }: { userData: UserData }) {
       <div className="relative bg-transparent h-40 md:h-48 lg:h-56">
         <div className="absolute -bottom-20 left-8 md:left-12 lg:left-16">
           <img
-            src={userData.img || '/placeholder.svg?height=160&width=160'}
+            src={userData.imgUrl || '/placeholder.svg?height=160&width=160'}
             alt={`${userData.username}의 프로필 사진`}
             className="w-40 h-40 md:w-44 md:h-44 lg:w-48 lg:h-48 rounded-full border-4 border-white shadow-lg object-cover"
           />
@@ -505,6 +491,7 @@ function UserDetails({ userData }: { userData: UserData }) {
           <h3 className="text-2xl font-semibold text-gray-900 mb-5">
             프로필 정보
           </h3>
+          <Link to="/edit">회원 정보 변경</Link>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* 기본 정보 카드 */}

@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { fetchData, useAxios } from '../../react-query/reactQuery';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from './authUtility';
 
 type Challenge =
   | '미용'
@@ -75,6 +76,7 @@ export default function ProfileEditPage() {
     null,
   );
   const [password, setPassword] = useState('');
+  const { accessToken } = useAuth();
 
   const handleSave = async () => {
     setSend(true);
@@ -87,15 +89,13 @@ export default function ProfileEditPage() {
 
     const updateUser = async () => {
       let content;
+
       switch (selectedField) {
         case 'USERNAME':
           content = userData.username;
           break;
         case 'EMAIL':
           content = userData.email;
-          break;
-        case 'SEX':
-          content = userData.sex;
           break;
         case 'BIRTHDAY':
           content = userData.birthday;
@@ -104,15 +104,21 @@ export default function ProfileEditPage() {
           content = userData.category;
           break;
         case 'PASSWORD':
-          content = userData.password;
+          content = password;
+          break;
+        case 'PROFILE':
+          content = userData.img;
+          break;
+        case 'SEX':
+          content = userData.sex;
           break;
       }
+
       const { data, error } = await fetchData({
         type: 'put',
         uri: '/api/v1/user/update/5',
-        props: { type: selectedField, password, content },
+        props: { type: selectedField, password, content, accessToken },
       });
-
       if (error) {
         alert(`에러 발생: ${error}`);
         setSend(false);
@@ -240,16 +246,36 @@ const UpdateOption = ({
   setUserData,
   category,
 }: UpdateOptionProps) => {
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setUserData((prev) => ({ ...prev, img: e.target?.result as string }));
-      };
-      reader.readAsDataURL(file);
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // FormData 생성
+    const formData = new FormData();
+    formData.append('profileImg', file);
+
+    try {
+      const response = await axios.post<{ data: string }>(
+        'http://localhost:8020/api/v1/user/profile',
+        formData,
+        {
+          headers: {
+            'Content-Type': 'Application/json',
+          },
+        },
+      );
+
+      console.log(response.data.data);
+      // 서버에서 반환받은 URL 저장
+      setUserData((prev) => ({
+        ...prev,
+        img: response.data.data,
+      }));
+    } catch (err) {
+      console.error('파일 업로드 실패:', err);
     }
   };
+
   const handleCategoryToggle = (co: Challenge) => {
     setUserData((prev) => ({
       ...prev,
@@ -325,7 +351,7 @@ const UpdateOption = ({
                 <input
                   type="file"
                   accept="image/*"
-                  onChange={handleImageUpload}
+                  onChange={handleFileUpload}
                   className="hidden"
                 />
               </label>
