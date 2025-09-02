@@ -27,6 +27,9 @@ const Header = () => {
           <a
             href="#"
             className="flex-1 text-center text-md/6 font-bold text-gray-900"
+            onClick={() => {
+              naviPage('/RandomChallenge/newChallenge');
+            }}
           >
             랜덤 챌린지
           </a>

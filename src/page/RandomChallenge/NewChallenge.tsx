@@ -53,7 +53,7 @@ const NewChallenge = () => {
           나만의 챌린지 만들기
         </button>
         <button className="mt-8 bg-sky-100 text-sky-800 font-semibold py-2 px-5 rounded-full shadow-md">
-          나만의 챌린지 만들기
+          리롤권 사용하기 1/3
         </button>
       </div>
     </div>
