@@ -7,10 +7,10 @@ const Header = () => {
     navigate(uri);
   };
   return (
-    <header className="bg-white">
+    <header className="bg-white mb-5">
       <nav
         aria-label="Global"
-        className="grid grid-cols-1 md:grid-cols-[auto,1fr,auto]  p-6"
+        className="grid grid-cols-1 md:grid-cols-[auto,1fr,auto]"
       >
         <div className="p-5 m-auto md:m-0">
           <a
@@ -57,6 +57,9 @@ const Header = () => {
           <a
             href="#"
             className="flex-1 text-center text-md/6 font-bold text-gray-900"
+            onClick={() => {
+              naviPage('/mypage');
+            }}
           >
             마이페이지
           </a>
