@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { LoadingAni, ScrollFadeIn } from '../../common/animation/Ani';
 import { Modal } from '../../common/component/modals';
 import type { Item, ItemCardProps, ItemModalProps } from './itemType';
-import { QueryRender } from '../../react-query/reactQuery';
+import { fetchData, QueryRender } from '../../react-query/reactQuery';
+import { useAuth, useCheckLogin } from '../Auth/authUtility';
 
 const Items = () => {
   return (
@@ -52,13 +53,12 @@ const ItemsContent = ({ items }: { items: Item[] }) => {
 };
 
 const ItemCard = ({ item, openModal }: ItemCardProps) => {
-  const { title, Url, points, itemCategory } = item;
+  const { title, Url, points, itemCategory, purchaseCount } = item;
   return (
     <div className="group relative bg-white rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100 overflow-hidden">
       <div className="absolute inset-0 bg-indigo-50/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-      {
-        // order && order > 150 &&
+      {purchaseCount > 10 && (
         <div
           className="absolute top-4 left-4 z-10 text-white text-xs font-bold px-3 py-1 rounded-md shadow-lg"
           style={{ backgroundColor: '#00EA5E' }}
@@ -66,7 +66,7 @@ const ItemCard = ({ item, openModal }: ItemCardProps) => {
           <span className="inline-block mr-1">🔥</span>
           HOT
         </div>
-      }
+      )}
 
       <div className="relative p-6 pb-4">
         <div className="relative overflow-hidden rounded-md bg-gray-50 group-hover:bg-gray-100 transition-colors duration-300">
@@ -89,10 +89,9 @@ const ItemCard = ({ item, openModal }: ItemCardProps) => {
 
         {/* 주문 정보 */}
         {
-          // order &&
           <div className="flex items-center gap-1 mb-4 text-sm text-gray-500">
             <span style={{ color: '#00EA5E' }}>📊</span>
-            <span>최근 주문 100건</span>
+            <span>교환 {purchaseCount}건</span>
           </div>
         }
 
@@ -136,29 +135,39 @@ const ItemCard = ({ item, openModal }: ItemCardProps) => {
 };
 
 const ItemModal = ({ closeModal, item }: ItemModalProps) => {
-  const { title, points } = item;
+  const { title, id, points } = item;
   const [itemFetch, setItemFetch] = useState(false);
-  const [error, setError] = useState<Error>();
-  const handleExchange = async () => {
+  const [result, setResult] = useState<string>('');
+  const handleExchange = () => {
     setItemFetch(true);
-    try {
-      // 예: await fetch or axios 요청
-      await new Promise((res) => setTimeout(res, 5000)); // 임시 딜레이
-      // 통신 성공 시 로직 추가
-      closeModal();
-    } catch (error) {
-      if (error instanceof Error) {
-        setError(error);
-      } else {
-        setError(new Error('알 수 없는 오류가 발생했습니다.'));
-      }
-    } finally {
-      setItemFetch(false);
-    }
   };
+
+  const { userId } = useAuth();
+
+  const checkLogin = useCheckLogin();
+  useEffect(() => {
+    if (itemFetch === false) return;
+    checkLogin();
+    (async () => {
+      const response = await fetchData({
+        type: 'post',
+        uri: '/points/orders',
+        props: { id: userId, itemId: id, quantity: 1 },
+      });
+      console.log(response.data?.data);
+      setResult(response.data?.errorResponsev2.message);
+      setItemFetch(false);
+    })();
+  }, [itemFetch]);
+
   const Fetch = () => {
     if (itemFetch) return <LoadingAni />;
-    if (error) return <div>error</div>;
+    if (result !== '')
+      return (
+        <h3 className="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+          {result}
+        </h3>
+      );
     return (
       <h3 className="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
         {title} 교환 시 포인트가 차감됩니다. 계속 진행하시겠습니까?

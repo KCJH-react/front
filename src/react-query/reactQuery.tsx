@@ -194,10 +194,10 @@ export const fetchData = async ({
         );
         break;
     }
-    return { data: response };
+    return { data: response.data };
   } catch (e) {
     if (e instanceof AxiosError) {
-      return { data: null, error: e.response?.data.errorResponsev2.message };
+      return { data: e.response?.data };
     }
     return { data: null, error: '알 수 없는 에러 발생' };
   }

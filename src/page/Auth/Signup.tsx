@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { AxiosRender } from '../../react-query/reactQuery';
+import { AxiosRender, fetchData } from '../../react-query/reactQuery';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { useAuthSave } from './authUtility';
 
 const Signup = () => {
   const [signupOrder, setSignupOrder] = useState(1);
@@ -173,18 +174,21 @@ const SignupForm = ({ email }: SignupFormProps) => {
     }));
   };
 
+  const authSave = useAuthSave();
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log('회원가입 데이터:', { ...formData });
 
     try {
-      const response = await axios.post<{ data: any }>(
-        'http://localhost:8020/api/v1/user/signup',
-        { ...formData },
-      );
+      const response = await fetchData({
+        type: 'post',
+        uri: '/api/v1/user/signup',
+        props: { ...formData },
+      });
 
-      console.log(response.data.data);
+      console.log(response.data);
       // 서버에서 반환받은 URL 저장
+
       navi('/auth/signin');
     } catch (err) {
       console.error('파일 업로드 실패:', err);

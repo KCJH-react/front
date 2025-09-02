@@ -1,9 +1,10 @@
 export type Item = {
+  id: number;
   title: string;
   Url: string;
   points: number;
   itemCategory: ItemCategory;
-  //order?: number;
+  purchaseCount: number;
 };
 
 export type ItemCategory =
@@ -23,6 +24,7 @@ export type ItemCardProps = {
 export type ItemModalProps = {
   closeModal: () => void;
   item: {
+    id: number;
     title: string;
     points: number;
   };
