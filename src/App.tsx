@@ -8,6 +8,7 @@ import Mypage from './page/Auth/Mypage';
 import 'react-datepicker/dist/react-datepicker.css';
 import Items from './page/Items/Items';
 import EditPage from './page/Auth/EditPage';
+import RankingPage from './page/Ranking/RankingPage';
 
 function App() {
   return (
@@ -29,7 +30,8 @@ function App() {
         </Route>
         <Route path="/edit" element={<Home />}>
           <Route path="" element={<EditPage />} />
-         <Route path="/ranking" element={<Home />}>
+        </Route>
+        <Route path="/ranking" element={<Home />}>
           <Route index element={<RankingPage />} />
         </Route>
       </Routes>

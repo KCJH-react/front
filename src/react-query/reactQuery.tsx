@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import axios, { AxiosError } from 'axios';
+import axios, { Axios, AxiosError, type AxiosResponse } from 'axios';
 import { LoadingAni } from '../common/animation/Ani';
 import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
@@ -156,19 +156,21 @@ export const fetchData = async ({
   uri,
   props,
   accessToken,
-}: AxiosProps) => {
+}: AxiosProps): Promise<{ data: AxiosResponse } | { data: null }> => {
   try {
     let response;
     const config = {
       ...props,
       withCredentials: true,
       headers: {
+        'Content-Type': 'application/json',
         ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
       },
     };
     const config2 = {
       withCredentials: true,
       headers: {
+        'Content-Type': 'application/json',
         ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
       },
     };
@@ -194,11 +196,12 @@ export const fetchData = async ({
         );
         break;
     }
+    console.log(response);
     return { data: response };
   } catch (e) {
     if (e instanceof AxiosError) {
-      return { data: null, error: e.response?.data.errorResponsev2.message };
+      return { data: e.response ? e.response : null };
     }
-    return { data: null, error: '알 수 없는 에러 발생' };
+    return { data: null };
   }
 };

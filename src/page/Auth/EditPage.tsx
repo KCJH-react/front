@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { fetchData, useAxios } from '../../react-query/reactQuery';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from './authUtility';
+import { useAuth, useCheckLogin } from './authUtility';
 
 type Challenge =
   | '미용'
@@ -76,7 +76,8 @@ export default function ProfileEditPage() {
     null,
   );
   const [password, setPassword] = useState('');
-  const { accessToken } = useAuth();
+  const { userId, accessToken } = useAuth();
+  const navi = useNavigate();
 
   const handleSave = async () => {
     setSend(true);
@@ -84,8 +85,10 @@ export default function ProfileEditPage() {
     console.log('저장된 데이터:', userData);
   };
 
+  const checkLogin = useCheckLogin();
   useEffect(() => {
     if (!send) return;
+    checkLogin();
 
     const updateUser = async () => {
       let content;
@@ -116,7 +119,7 @@ export default function ProfileEditPage() {
 
       const { data, error } = await fetchData({
         type: 'put',
-        uri: '/api/v1/user/update/5',
+        uri: `/api/v1/user/update/${userId}`,
         props: { type: selectedField, password, content, accessToken },
       });
       if (error) {
