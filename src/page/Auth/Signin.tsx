@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { signin } from '../../redux/sessionSlice';
 import { fetchData } from '../../react-query/reactQuery';
 import { setToken } from '../../redux/tokenSlice';
-import { useAuthSave } from './authUtility';
+import { useAuth, useAuthSave } from './authUtility';
 
 const Signin = () => {
   return (
@@ -52,38 +52,38 @@ const SignInForm = () => {
     setSend(true);
   };
   const authSave = useAuthSave();
+  const { accessToken } = useAuth();
   useEffect(() => {
-    const login = async () => {
-      const { data: axiosResponse, error } = await fetchData({
+    if (!send) return;
+    (async () => {
+      const { data: axiosResponse } = await fetchData({
         type: 'post',
         uri: '/api/v1/user/signin',
         props: { email, password },
+        accessToken,
       });
-
-      if (axiosResponse) {
-        // ✅ 안전하게 headers 접근
-        let token =
-          axiosResponse.headers['authorization'] ||
-          axiosResponse.headers['Authorization'];
-
-        if (token) {
-          console.log(axiosResponse.data.data.id);
-          console.log('Access Token:', token);
-          authSave({
-            userId: axiosResponse.data.data.id,
-            accessToken: token,
-          });
-          naviPage('/');
-        } else {
-          console.error('Access token not found in headers');
-        }
-      } else {
-        console.error(error);
+      if (axiosResponse === null) return;
+      if (axiosResponse.data?.errorResponsev2.code !== 'OK') {
+        alert(axiosResponse.data?.errorResponsev2.message);
       }
-      if (error) console.log(error);
-    };
+      let token =
+        axiosResponse.headers['authorization'] ||
+        axiosResponse.headers['Authorization'];
 
-    login();
+      if (token) {
+        console.log(axiosResponse.data.data.id);
+        console.log('Access Token:', token);
+        authSave({
+          userId: axiosResponse.data.data.id,
+          accessToken: token,
+        });
+        naviPage('/');
+      } else {
+        console.error('Access token not found in headers');
+      }
+    })();
+
+    //login();
   }, [send]);
   return (
     <ScrollFadeIn delay={0.3}>

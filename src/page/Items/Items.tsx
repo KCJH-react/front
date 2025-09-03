@@ -142,18 +142,20 @@ const ItemModal = ({ closeModal, item }: ItemModalProps) => {
     setItemFetch(true);
   };
 
-  const { userId } = useAuth();
+  const { userId, accessToken } = useAuth();
 
   const checkLogin = useCheckLogin();
   useEffect(() => {
     if (itemFetch === false) return;
     checkLogin();
     (async () => {
-      const response = await fetchData({
+      const { data: response } = await fetchData({
         type: 'post',
         uri: '/points/orders',
         props: { id: userId, itemId: id, quantity: 1 },
+        accessToken,
       });
+      if (!response) return;
       console.log(response.data?.data);
       setResult(response.data?.errorResponsev2.message);
       setItemFetch(false);
