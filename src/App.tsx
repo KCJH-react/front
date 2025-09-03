@@ -2,9 +2,12 @@ import { Routes, Route, Outlet } from 'react-router-dom';
 import Header from './common/component/Header';
 import Footer from './common/component/Footer';
 import Main from './page/Main';
-import Signin from './page/Authentication/Signin';
-import Signup from './page/Authentication/Signup';
-import Mypage from './page/Authentication/Mypage';
+import Signin from './page/Auth/Signin';
+import Signup from './page/Auth/Signup';
+import Mypage from './page/Auth/Mypage';
+import 'react-datepicker/dist/react-datepicker.css';
+import Items from './page/Items/Items';
+import EditPage from './page/Auth/EditPage';
 import RankingPage from './page/Ranking/RankingPage';
 
 function App() {
@@ -19,7 +22,16 @@ function App() {
           <Route path="signup" element={<Signup />} />
           <Route path="mypage" element={<Mypage />} />
         </Route>
-         <Route path="/ranking" element={<Home />}>
+        <Route path="/items" element={<Home />}>
+          <Route path="" element={<Items />} />
+        </Route>
+        <Route path="/mypage" element={<Home />}>
+          <Route path="" element={<Mypage />} />
+        </Route>
+        <Route path="/edit" element={<Home />}>
+          <Route path="" element={<EditPage />} />
+        </Route>
+        <Route path="/ranking" element={<Home />}>
           <Route index element={<RankingPage />} />
         </Route>
       </Routes>
