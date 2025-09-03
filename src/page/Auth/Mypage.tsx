@@ -1,13 +1,17 @@
 import { useEffect, useState } from 'react';
 import 'react-calendar/dist/Calendar.css';
-import { AxiosRender, QueryRender } from '../../react-query/reactQuery';
+import {
+  AxiosRender,
+  fetchData,
+  QueryRender,
+} from '../../react-query/reactQuery';
 import { ScrollFadeIn } from '../../common/animation/Ani';
 import '../../index.css';
 import Signin from './Signin';
-import type { RootState } from '../../store';
-import { useSelector } from 'react-redux';
 import type { Response } from '../../common/type';
 import { Link } from 'react-router-dom';
+import { useAuth } from './authUtility';
+import type { Item } from '../Items/itemType';
 
 type UserData = {
   imgUrl: string | null;
@@ -76,7 +80,24 @@ const sampleChallenges: Challenge[] = [
 ];
 
 const Mypage = () => {
-  const userId = useSelector((state: RootState) => state.user.value);
+  const { userId, accessToken } = useAuth();
+  const [myItems, setMyItems] = useState([]);
+  useEffect(() => {
+    (async () => {
+      const result = await fetchData({
+        type: 'post',
+        uri: '/points/myItems',
+        props: userId,
+        accessToken: accessToken,
+      });
+      if (result.data === null) {
+        alert('아이템을 불러오는 데 실패했습니다.');
+        return;
+      }
+      console.log(result.data.data.data);
+      setMyItems(result.data.data.data);
+    })();
+  }, []);
   return (
     <>
       <AxiosRender<Response<UserData>>
@@ -438,21 +459,28 @@ function UserDetails({ userData }: { userData: UserData }) {
 
     return age;
   };
-
-  // 생일 포맷팅
-  const formatBirthday = (dateString: string) => {
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleDateString('ko-KR', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { userId, accessToken } = useAuth();
+  const [myItems, setMyItems] = useState([]);
+  useEffect(() => {
+    (async () => {
+      const result = await fetchData({
+        type: 'post',
+        uri: '/points/myItems',
+        props: userId,
+        accessToken: accessToken,
       });
-    } catch (e) {
-      return dateString;
-    }
+      if (result.data === null) {
+        alert('아이템을 불러오는 데 실패했습니다.');
+        return;
+      }
+      console.log(result.data.data.data);
+      setMyItems(result.data.data.data);
+    })();
+  }, []);
+  const handleMyItem = async () => {
+    setIsModalOpen(true);
   };
-
   return (
     <div className="w-full bg-white border-t-2 overflow-hidden">
       {/* Header Section */}
@@ -510,9 +538,20 @@ function UserDetails({ userData }: { userData: UserData }) {
             </div>
 
             <div className="bg-gray-50 p-6 rounded-lg">
-              <div className="text-lg text-gray-500 mb-2">생년월일</div>
+              <div className="text-lg text-gray-500 mb-2">내 아이템</div>
               <div className="text-2xl font-medium text-gray-900">
-                {formatBirthday(userData.birthday)}
+                <button
+                  onClick={() => handleMyItem()}
+                  className="px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+                >
+                  아이템 확인하기
+                </button>
+
+                <ItemModal
+                  isOpen={isModalOpen}
+                  onClose={() => setIsModalOpen(false)}
+                  data={myItems}
+                />
               </div>
             </div>
 
@@ -542,6 +581,139 @@ function UserDetails({ userData }: { userData: UserData }) {
               </div>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+interface DataItem {
+  id: number;
+  itemTitle: string;
+  useCode: string;
+  createdAt: string;
+}
+
+interface ItemModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  data: DataItem[];
+}
+
+export function ItemModal({ isOpen, onClose, data }: ItemModalProps) {
+  // Close modal on Escape key press
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('keydown', handleEscape);
+      document.body.style.overflow = 'hidden';
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen, onClose]);
+
+  if (!isOpen) return null;
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleString('ko-KR', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        onClick={onClose}
+      />
+
+      {/* Modal Content */}
+      <div className="relative bg-white rounded-xl shadow-2xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-hidden">
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 bg-[#00EA5E] text-white">
+          <h2 className="text-2xl font-semibold">Item List</h2>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-[#00EA5E]/80 rounded-lg transition-colors"
+            aria-label="Close modal"
+          >
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+          <div className="grid gap-4">
+            {data.map((item) => (
+              <div
+                key={item.id}
+                className="bg-gray-50 rounded-lg p-4 border border-gray-200 hover:bg-gray-100 transition-colors"
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <h3 className="text-lg font-medium text-gray-900">
+                    {item.itemTitle}
+                  </h3>
+                  <span className="text-sm text-white bg-[#00EA5E] px-2 py-1 rounded">
+                    ID: {item.id}
+                  </span>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium text-gray-600">
+                      Use Code:
+                    </span>
+                    <code className="text-sm bg-gray-200 px-2 py-1 rounded font-mono text-gray-800">
+                      {item.useCode}
+                    </code>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium text-gray-600">
+                      Created:
+                    </span>
+                    <span className="text-sm text-gray-900">
+                      {formatDate(item.createdAt)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="flex justify-end gap-3 p-6 border-t border-gray-200 bg-gray-50">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 text-sm bg-[#00EA5E] text-white rounded-lg hover:bg-[#00EA5E]/90 transition-colors"
+          >
+            Close
+          </button>
         </div>
       </div>
     </div>

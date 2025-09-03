@@ -163,12 +163,14 @@ export const fetchData = async ({
       ...props,
       withCredentials: true,
       headers: {
+        'Content-Type': 'application/json',
         ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
       },
     };
     const config2 = {
       withCredentials: true,
       headers: {
+        'Content-Type': 'application/json',
         ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
       },
     };
