@@ -1,10 +1,28 @@
 import logo from '../../assets/logo.png';
 import { useNavigate } from 'react-router-dom';
+import { useAuth, useAuthSave } from '../../page/Auth/authUtility';
+import { fetchData } from '../../react-query/reactQuery';
 
 const Header = () => {
+  const { userId, accessToken } = useAuth();
   const navigate = useNavigate();
+  const authSave = useAuthSave();
   const naviPage = (uri: string) => {
     navigate(uri);
+  };
+  const handleLogout = async () => {
+    console.log('Logging out...');
+    const { data: response } = await fetchData({
+      type: 'post',
+      uri: '/api/v1/user/logout',
+      accessToken,
+    });
+    if (response === null) return;
+    console.log(response);
+    authSave({ userId: 0, accessToken: '' });
+    // if (response.data.errorResponsev2.code !== 'OK') {
+    //   alert(response.data.errorResponsev2.message);
+    // }
   };
   return (
     <header className="bg-white mb-5">
@@ -61,17 +79,30 @@ const Header = () => {
             마이페이지
           </a>
         </div>
-        <div className="p-5 ml-auto">
-          <a
-            href="#"
-            className="text-gray-900 font-bold"
-            onClick={() => {
-              naviPage('/auth/signin');
-            }}
-          >
-            Log in <span aria-hidden="true">&rarr;</span>
-          </a>
-        </div>
+        {userId === 0 ? (
+          <div className="p-5 ml-auto">
+            <a
+              href="#"
+              className="text-gray-900 font-bold"
+              onClick={() => {
+                naviPage('/auth/signin');
+              }}
+            >
+              Log in <span aria-hidden="true">&rarr;</span>
+            </a>
+          </div>
+        ) : (
+          <div className="p-5 ml-auto">
+            <button
+              className="text-gray-900 font-bold"
+              onClick={() => {
+                handleLogout();
+              }}
+            >
+              Log out
+            </button>
+          </div>
+        )}
       </nav>
     </header>
   );

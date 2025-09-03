@@ -1,6 +1,6 @@
 import type React from 'react';
 import { useEffect, useState } from 'react';
-import { fetchData, useAxios } from '../../react-query/reactQuery';
+import { fetchData } from '../../react-query/reactQuery';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useAuth, useCheckLogin } from './authUtility';
@@ -77,7 +77,6 @@ export default function ProfileEditPage() {
   );
   const [password, setPassword] = useState('');
   const { userId, accessToken } = useAuth();
-  const navi = useNavigate();
 
   const handleSave = async () => {
     setSend(true);
@@ -117,20 +116,23 @@ export default function ProfileEditPage() {
           break;
       }
 
-      const { data, error } = await fetchData({
+      const { data: response } = await fetchData({
         type: 'put',
         uri: `/api/v1/user/update/${userId}`,
         props: { type: selectedField, password, content, accessToken },
       });
-      if (error) {
-        alert(`에러 발생: ${error}`);
+      if (response === null) {
         setSend(false);
         return;
       }
-      if (data) {
+      if (response.data.errorResponsev2.code !== 'OK') {
         alert('회원 정보가 성공적으로 업데이트되었습니다!');
         setSend(false);
         navigate('/mypage');
+      } else {
+        alert(`에러 발생: ${response.data.errorResponsev2.message}`);
+        setSend(false);
+        return;
       }
     };
 

@@ -2,10 +2,7 @@ import Button from '../../common/component/button';
 import { ScrollFadeIn } from '../../common/animation/Ani';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { signin } from '../../redux/sessionSlice';
 import { fetchData } from '../../react-query/reactQuery';
-import { setToken } from '../../redux/tokenSlice';
 import { useAuth, useAuthSave } from './authUtility';
 
 const Signin = () => {
@@ -30,7 +27,6 @@ const Signin = () => {
 
 const SignInForm = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
   const naviPage = (uri: string) => {
     navigate(uri);
   };
@@ -75,7 +71,7 @@ const SignInForm = () => {
         console.log('Access Token:', token);
         authSave({
           userId: axiosResponse.data.data.id,
-          accessToken: token,
+          accessToken: token.substring(7),
         });
         naviPage('/');
       } else {

@@ -1,9 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
-import axios, { Axios, AxiosError, type AxiosResponse } from 'axios';
+import axios, { AxiosError, type AxiosResponse } from 'axios';
 import { LoadingAni } from '../common/animation/Ani';
 import { useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { setToken } from '../redux/tokenSlice';
 import { useAuth } from '../page/Auth/authUtility';
 
 const useGetQuery = (uri: string) => {
@@ -159,12 +157,13 @@ export const fetchData = async ({
 }: AxiosProps): Promise<{ data: AxiosResponse } | { data: null }> => {
   try {
     let response;
+    console.log(accessToken);
     const config = {
       ...props,
       withCredentials: true,
       headers: {
         'Content-Type': 'application/json',
-        ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+        ...(accessToken ? { Authorization: `${accessToken}` } : {}),
       },
     };
     const config2 = {

@@ -11,7 +11,6 @@ import Signin from './Signin';
 import type { Response } from '../../common/type';
 import { Link } from 'react-router-dom';
 import { useAuth } from './authUtility';
-import type { Item } from '../Items/itemType';
 
 type UserData = {
   imgUrl: string | null;
