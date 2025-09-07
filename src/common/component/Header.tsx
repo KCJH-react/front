@@ -20,9 +20,6 @@ const Header = () => {
     if (response === null) return;
     console.log(response);
     authSave({ userId: 0, accessToken: '' });
-    // if (response.data.errorResponsev2.code !== 'OK') {
-    //   alert(response.data.errorResponsev2.message);
-    // }
   };
   return (
     <header className="bg-white mb-5">
