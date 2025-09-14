@@ -16,6 +16,17 @@ interface Challenge {
   reason: string;
 }
 
+type UserData = {
+  imgUrl: string | null;
+  username: string;
+  email: string;
+  points: number;
+  goal: number;
+  category: string[];
+  sex: '남자' | '여자';
+  birthday: string;
+};
+
 interface ChallengeProps {
   title: string;
   icon: React.ReactNode;
@@ -33,20 +44,70 @@ interface ChallengeInfoProps {
 
 const MakeNewChallenge = () => {
   const {userId} = useAuth();
-  console.log("Current UserId:", userId);
+  const [challengeData, setChallengeData] = useState<Challenge | null>(null);
+  const [userName, setUserName] = useState();
+  const [userCategory, setUserCategory] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    const initialFetch = async () => {
+      try {
+        // if (!userId) return;
+        const response = await fetchData({
+          uri: `/api/chat/challenge?userid=${6}`,
+          type: 'get'
+        });
+        if (response.data?.data) {
+          setChallengeData(response.data.data);
+        } else {
+          throw new Error("챌린지 데이터를 불러오지 못했습니다.");
+        }
+      } catch (err) {
+        setError(err as Error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    initialFetch();
+  }, [userId]);
+
+    const handleReroll = async () => {
+    setIsLoading(true); 
+    try {
+      // if (!userId) return;
+      const response = await fetchData({
+        type: "get",
+        uri: `/api/chat/test?userid=${6}`,
+      });
+      if (response.data?.data) {
+        setChallengeData(response.data.data);
+        window.location.reload();
+      } else {
+        throw new Error("리롤에 실패했습니다.");
+      }
+    } catch (err) {
+      setError(err as Error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
   return (
     <AxiosRender<Response<Challenge>>
-      uri={`/api/chat/challenge?userid=${2}`} 
+      uri={`/api/chat/challenge?userid=${6}`} 
       type="get"
       onSuccess={(data) => {
-        return <NewChallenge challengeData={data.data!} />
+        return <NewChallenge challengeData={data.data!} onReroll={handleReroll}/>
       }}
       onError={() => <Signin />}
     />
   );
 };
 
-const NewChallenge = ({challengeData} : {challengeData: Challenge}) => {
+const NewChallenge = ({challengeData, onReroll} : {
+  challengeData: Challenge;
+  onReroll: () => void;
+}) => {
     const getPointsByLevel = (level: Challenge['difficult']): number => {
     switch (level) {
       case "쉬움": return 50;
@@ -87,8 +148,9 @@ const NewChallenge = ({challengeData} : {challengeData: Challenge}) => {
         <button className="mt-8 bg-sky-100 text-sky-800 font-semibold py-2 px-5 rounded-full shadow-md">
           나만의 챌린지 만들기
         </button>
-        <button className="mt-8 bg-sky-100 text-sky-800 font-semibold py-2 px-5 rounded-full shadow-md">
-          나만의 챌린지 만들기
+        <button className="mt-8 bg-sky-100 text-sky-800 font-semibold py-2 px-5 rounded-full shadow-md"
+        onClick={onReroll}>
+          리롤하기
         </button>
       </div>
     </div>
