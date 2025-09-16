@@ -4,8 +4,8 @@ import { useInView } from 'react-intersection-observer';
 
 export const LoadingAni = () => {
   return (
-    <div className="flex items-center justify-center">
-      <div className="h-12 w-12 animate-spin rounded-full border-4 border-solid border-[#A9D18E] border-t-transparent"></div>
+    <div className="m-5 flex items-center justify-center">
+      <div className="h-12 w-12 animate-spin rounded-full border-4 border-solid border-[#00EA5E] border-t-transparent"></div>
     </div>
   );
 };

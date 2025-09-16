@@ -7,6 +7,8 @@ import Signup from './page/Auth/Signup';
 import Mypage from './page/Auth/Mypage';
 import 'react-datepicker/dist/react-datepicker.css';
 import Items from './page/Items/Items';
+import EditPage from './page/Auth/EditPage';
+import RankingPage from './page/Ranking/RankingPage';
 import NewChallenge from './page/RandomChallenge/NewChallenge';
 
 function App() {
@@ -24,8 +26,17 @@ function App() {
         <Route path="/items" element={<Home />}>
           <Route path="" element={<Items />} />
         </Route>
-        <Route path="/RandomChallenge" element={<Home />}>
-          <Route path="newChallenge" element={<NewChallenge />} />
+        <Route path="/mypage" element={<Home />}>
+          <Route path="" element={<Mypage />} />
+        </Route>
+        <Route path="/edit" element={<Home />}>
+          <Route path="" element={<EditPage />} />
+        </Route>
+        <Route path="/ranking" element={<Home />}>
+          <Route index element={<RankingPage />} />
+        </Route>
+        <Route path="/challenge" element={<Home />}>
+          <Route path="" element={<NewChallenge />} />
         </Route>
       </Routes>
     </>

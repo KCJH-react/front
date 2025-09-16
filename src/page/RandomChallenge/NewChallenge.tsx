@@ -1,5 +1,31 @@
 import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
+import {
+  AxiosRender,
+  fetchData,
+  QueryRender,
+} from '../../react-query/reactQuery';
+import { useAuth } from '../Auth/authUtility';
+import type { Response } from '../../common/type';
+import Signin from '../Auth/Signin';
+
+interface Challenge {
+  content: string;
+  difficult: "쉬움" | "중간" | "어려움";
+  duration: number; // 분 단위
+  reason: string;
+}
+
+type UserData = {
+  imgUrl: string | null;
+  username: string;
+  email: string;
+  points: number;
+  goal: number;
+  category: string[];
+  sex: '남자' | '여자';
+  birthday: string;
+};
 
 interface ChallengeProps {
   title: string;
@@ -16,24 +42,94 @@ interface ChallengeInfoProps {
   infos: string[];
 }
 
-const NewChallenge = () => {
-  const dummyChallenge: ChallengeProps = {
-    title: '하루에 물 2리터 마시기',
-    icon: '💧',
-    points: 150,
-    timeLimit: 24 * 60 * 60 * 1000,
-    startTime: Date.now(),
-    difficulty: '쉬움',
-    content: '건강한 습관의 첫걸음! 꾸준히 물을 마시며 몸의 변화를 느껴보세요. 하루 동안 2리터의 물을 마시면 인증 성공!',
+const MakeNewChallenge = () => {
+  const {userId} = useAuth();
+  const [challengeData, setChallengeData] = useState<Challenge | null>(null);
+  const [userName, setUserName] = useState();
+  const [userCategory, setUserCategory] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    const initialFetch = async () => {
+      try {
+        // if (!userId) return;
+        const response = await fetchData({
+          uri: `/api/chat/challenge?userid=${6}`,
+          type: 'get'
+        });
+        if (response.data?.data) {
+          setChallengeData(response.data.data);
+        } else {
+          throw new Error("챌린지 데이터를 불러오지 못했습니다.");
+        }
+      } catch (err) {
+        setError(err as Error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    initialFetch();
+  }, [userId]);
+
+    const handleReroll = async () => {
+    setIsLoading(true); 
+    try {
+      // if (!userId) return;
+      const response = await fetchData({
+        type: "get",
+        uri: `/api/chat/test?userid=${6}`,
+      });
+      if (response.data?.data) {
+        setChallengeData(response.data.data);
+        window.location.reload();
+      } else {
+        throw new Error("리롤에 실패했습니다.");
+      }
+    } catch (err) {
+      setError(err as Error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  return (
+    <AxiosRender<Response<Challenge>>
+      uri={`/api/chat/challenge?userid=${6}`} 
+      type="get"
+      onSuccess={(data) => {
+        return <NewChallenge challengeData={data.data!} onReroll={handleReroll}/>
+      }}
+      onError={() => <Signin />}
+    />
+  );
+};
+
+const NewChallenge = ({challengeData, onReroll} : {
+  challengeData: Challenge;
+  onReroll: () => void;
+}) => {
+    const getPointsByLevel = (level: Challenge['difficult']): number => {
+    switch (level) {
+      case "쉬움": return 50;
+      case "중간": return 100;
+      case "어려움": return 150;
+      default: return 0;
+    }
   };
 
-    const dummyInfo: ChallengeInfoProps = {
-    title: '이 챌린지는',
-    infos: [
-      "1,234명이 성공했어요.",
-      "평균 완료 시간은 5시간이에요.",
-      "45명이 이 챌린지를 건너뛰었어요.",
-    ],
+    const challengeProps: ChallengeProps = {
+    title: "기본 타이틀",
+    icon: '💧',
+    startTime: Date.now(),
+    content: challengeData.content,
+    difficulty: challengeData.difficult,
+    timeLimit: challengeData.duration * 60 * 1000,
+    points: getPointsByLevel(challengeData.difficult),
+  };
+
+    const challengeInfoProps: ChallengeInfoProps = {
+    title: '이 챌린지를 추천하는 이유',
+    infos: [challengeData.reason],
   };
 
   return (
@@ -42,8 +138,8 @@ const NewChallenge = () => {
         오늘의 랜덤챌린지
       </h2>
       <div className="flex mt-8 mx-auto gap-10">
-        <ChallengeCard challengeProps={dummyChallenge} />
-        <ChallengeInfoCard challengeInfoProps={dummyInfo} />
+        <ChallengeCard challengeProps={challengeProps} />
+        <ChallengeInfoCard challengeInfoProps={challengeInfoProps} />
       </div>
       <div className="flex justify-center gap-5">
         <button className="mt-8 bg-sky-100 text-sky-800 font-semibold py-2 px-5 rounded-full shadow-md">
@@ -52,13 +148,15 @@ const NewChallenge = () => {
         <button className="mt-8 bg-sky-100 text-sky-800 font-semibold py-2 px-5 rounded-full shadow-md">
           나만의 챌린지 만들기
         </button>
-        <button className="mt-8 bg-sky-100 text-sky-800 font-semibold py-2 px-5 rounded-full shadow-md">
-          나만의 챌린지 만들기
+        <button className="mt-8 bg-sky-100 text-sky-800 font-semibold py-2 px-5 rounded-full shadow-md"
+        onClick={onReroll}>
+          리롤하기
         </button>
       </div>
     </div>
   );
 };
+
 
 const ChallengeCard = ({ challengeProps }: { challengeProps: ChallengeProps }) => {
   const {
@@ -106,7 +204,7 @@ const ChallengeCard = ({ challengeProps }: { challengeProps: ChallengeProps }) =
     <div className="w-[650px] bg-white rounded-2xl shadow-lg p-6 border border-gray-200 space-y-4">
       {/*세로 배치*/}
       <div className="flex flex-col items-start justify-between">
-        <h2 className="w-full text-center text-xl font-bold text-gray-900">{title}</h2>
+        <h2 className="w-full text-center text-xl font-bold text-gray-900">{title} </h2>
         {/* 아이콘, (포인트, 제한시간, 난이도) 가로배치 */}
         <div className="flex items-center gap-10">
             <div className="ml-10 flex h-24 w-24 items-center justify-center rounded-2xl border border-slate-200 bg-slate-100">
@@ -123,7 +221,7 @@ const ChallengeCard = ({ challengeProps }: { challengeProps: ChallengeProps }) =
               <div className="flex gap-2 items-start justify-between">
                 <span className="text-base font-bold text-purple-600">제한시간</span>
                 <span className="text-base"> | </span>
-                <span className="text-base font-bold">{timeLimit / (1000 * 60 * 60)}시간</span>
+                <span className="text-base font-bold">{timeLimit / (1000 * 60)}분</span>
               </div>
               {/* 난이도 */}
               <div className="flex gap-2 items-start justify-between">
@@ -175,4 +273,4 @@ const ChallengeInfoCard = ({ challengeInfoProps }: { challengeInfoProps: Challen
   );
 };
 
-export default NewChallenge;
+export default MakeNewChallenge;

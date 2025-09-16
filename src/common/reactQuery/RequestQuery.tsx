@@ -36,6 +36,7 @@ export const GetQueryRenderer = ({
 }: GetQueryRendererProps) => {
   const { data, isLoading, error } = useGetQuery(uri);
   if (isLoading) return <>{onLoading()}</>;
+
   if (error) return <>{onFalied()}</>;
   return onSuccess(data);
 };
