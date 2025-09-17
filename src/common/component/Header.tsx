@@ -39,6 +39,9 @@ const Header = () => {
           <a
             href="#"
             className="flex-1 text-center text-md/6 font-bold text-gray-900"
+            onClick={() => {
+              naviPage('/ranking');
+            }}
           >
             랭킹
           </a>

@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { setToken } from '../redux/tokenSlice';
 import { useAuth } from '../page/Auth/authUtility';
+import {api} from "../axiosInstance";
 
 const useGetQuery = (uri: string) => {
   const { data, isLoading, error } = useQuery({
@@ -203,5 +204,17 @@ export const fetchData = async ({
       return { data: e.response ? e.response : null };
     }
     return { data: null };
+  }
+};
+
+// ✅ 랭킹 전용 fetch (기존 fetchData는 그대로 둠)
+export const fetchRankingData = async (
+  uri: string // 예: "/api/v1/ranking/topRanks?type=TOTAL"
+): Promise<any> => {
+  try {
+    const resp = await api.get(uri); // baseURL, 토큰, withCredentials 자동 적용
+    return resp.data;                // payload만 반환
+  } catch {
+    return null;
   }
 };
