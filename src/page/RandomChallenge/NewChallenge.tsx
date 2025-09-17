@@ -10,29 +10,23 @@ import type { Response } from '../../common/type';
 import Signin from '../Auth/Signin';
 
 interface Challenge {
+  id: number;
   content: string;
   difficult: "쉬움" | "중간" | "어려움";
-  duration: number; // 분 단위
+  duration: number;
   reason: string;
-}
-
-type UserData = {
-  imgUrl: string | null;
+  createdAt: string;
+  success: Boolean;
   username: string;
-  email: string;
-  points: number;
-  goal: number;
   category: string[];
-  sex: '남자' | '여자';
-  birthday: string;
-};
+}
 
 interface ChallengeProps {
   title: string;
   icon: React.ReactNode;
   points: number;
   timeLimit: number;
-  startTime: number;
+  startTime: Date;
   difficulty: "쉬움" | "중간" | "어려움";
   content: string;
 }
@@ -42,35 +36,19 @@ interface ChallengeInfoProps {
   infos: string[];
 }
 
+const CATEGORY_ICONS: { [key: string]: string } = {
+  "미용": "💄", "봉사": "❤️", "여행": "✈️", "취업": "💼",
+  "운동": "💪", "학습": "📚", "대중문화": "🎬", "금융": "💰", "인간관계": "🤝",
+};
+
+const DEFAULT_ICON = "⭐";
+
 const MakeNewChallenge = () => {
   const {userId} = useAuth();
   const [challengeData, setChallengeData] = useState<Challenge | null>(null);
-  const [userName, setUserName] = useState();
-  const [userCategory, setUserCategory] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
-  useEffect(() => {
-    const initialFetch = async () => {
-      try {
-        // if (!userId) return;
-        const response = await fetchData({
-          uri: `/api/chat/challenge?userid=${6}`,
-          type: 'get'
-        });
-        if (response.data?.data) {
-          setChallengeData(response.data.data);
-        } else {
-          throw new Error("챌린지 데이터를 불러오지 못했습니다.");
-        }
-      } catch (err) {
-        setError(err as Error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    initialFetch();
-  }, [userId]);
 
     const handleReroll = async () => {
     setIsLoading(true); 
@@ -78,7 +56,7 @@ const MakeNewChallenge = () => {
       // if (!userId) return;
       const response = await fetchData({
         type: "get",
-        uri: `/api/chat/test?userid=${6}`,
+        uri: `/api/chat/test?userid=${11}`,
       });
       if (response.data?.data) {
         setChallengeData(response.data.data);
@@ -92,20 +70,49 @@ const MakeNewChallenge = () => {
       setIsLoading(false);
     }
   };
+
+    const handleComplete = async (challengeId: number) => {
+    try {
+      // if (!userId) {
+      //   alert("로그인이 필요합니다.");
+      //   return;
+      // }
+      
+      const response = await fetchData({
+        type: "post",
+        uri: `/api/challenges/complete`,
+        props: {
+          userId: 11,
+          challengeId: challengeId,
+        }
+      });
+      
+      if (response.data?.data === true) {
+        alert("챌린지 완료! 포인트를 획득했습니다.");
+      } else {
+        throw new Error("챌린지 완료 처리에 실패했습니다.");
+      }
+    } catch (err) {
+      alert((err as Error).message);
+    }
+  };
+
   return (
     <AxiosRender<Response<Challenge>>
-      uri={`/api/chat/challenge?userid=${6}`} 
+      uri={`/api/chat/challenge?userid=${11}`} 
       type="get"
       onSuccess={(data) => {
-        return <NewChallenge challengeData={data.data!} onReroll={handleReroll}/>
+        //
+        return <NewChallenge challengeData={data.data!} onComplete={handleComplete} onReroll={handleReroll}/>
       }}
       onError={() => <Signin />}
     />
   );
 };
 
-const NewChallenge = ({challengeData, onReroll} : {
+const NewChallenge = ({challengeData, onComplete, onReroll} : {
   challengeData: Challenge;
+  onComplete: (challengeId: number) => void;
   onReroll: () => void;
 }) => {
     const getPointsByLevel = (level: Challenge['difficult']): number => {
@@ -117,10 +124,11 @@ const NewChallenge = ({challengeData, onReroll} : {
     }
   };
 
+  const mainCategory = challengeData.category?.[0];
     const challengeProps: ChallengeProps = {
-    title: "기본 타이틀",
-    icon: '💧',
-    startTime: Date.now(),
+    title: `${challengeData.username}님을 위한 오늘의 챌린지`,
+    icon: mainCategory ? (CATEGORY_ICONS[mainCategory] || DEFAULT_ICON) : DEFAULT_ICON,
+    startTime: new Date(challengeData.createdAt.replace(" ", "T")),
     content: challengeData.content,
     difficulty: challengeData.difficult,
     timeLimit: challengeData.duration * 60 * 1000,
@@ -142,7 +150,8 @@ const NewChallenge = ({challengeData, onReroll} : {
         <ChallengeInfoCard challengeInfoProps={challengeInfoProps} />
       </div>
       <div className="flex justify-center gap-5">
-        <button className="mt-8 bg-sky-100 text-sky-800 font-semibold py-2 px-5 rounded-full shadow-md">
+        <button className="mt-8 bg-sky-100 text-sky-800 font-semibold py-2 px-5 rounded-full shadow-md"
+        onClick={() => onComplete(challengeData.id)}>
           완료하기
         </button>
         <button className="mt-8 bg-sky-100 text-sky-800 font-semibold py-2 px-5 rounded-full shadow-md">
@@ -171,11 +180,11 @@ const ChallengeCard = ({ challengeProps }: { challengeProps: ChallengeProps }) =
   
   const navigate = useNavigate();
 
-  const [remainingTime, setRemainingTime] = useState(startTime + timeLimit - Date.now());
+  const [remainingTime, setRemainingTime] = useState(startTime.getTime() + timeLimit - Date.now());
 
   useEffect(() => {
     const intervalId = setInterval(() => {
-      const newRemainingTime = startTime + timeLimit - Date.now();
+      const newRemainingTime = startTime.getTime() + timeLimit - Date.now();
       setRemainingTime(Math.max(0, newRemainingTime)); 
     }, 1000);
     return () => clearInterval(intervalId);
