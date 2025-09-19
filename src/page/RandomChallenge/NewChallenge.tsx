@@ -49,6 +49,10 @@ const MakeNewChallenge = () => {
   const [challengeData, setChallengeData] = useState<Challenge | null>(null);
   const [isReroll, setIsReroll] = useState(false);
   const [error, setError] = useState<Error | null>(null);
+  const navigate = useNavigate();
+  const naviPage = (uri: string) => {
+    navigate(uri);
+  }
 
 
 
@@ -82,15 +86,16 @@ const MakeNewChallenge = () => {
       
       const response = await fetchData({
         type: "post",
-        uri: `/api/challenges/complete`,
+        uri: `/api/challenge/complete`,
         props: {
           userId: 11,
           challengeId: challengeId,
         }
       });
       
-      if (response.data?.data === true) {
+      if (response.data?.data.data === true) {
         alert("챌린지 완료! 포인트를 획득했습니다.");
+        naviPage('/');
       } else {
         throw new Error("챌린지 완료 처리에 실패했습니다.");
       }
@@ -113,7 +118,6 @@ const MakeNewChallenge = () => {
       uri={`/api/chat/challenge?userid=${11}`} 
       type="get"
       onSuccess={(data) => {
-        //
         return <NewChallenge challengeData={data.data!} onComplete={handleComplete} onReroll={handleReroll}/>
       }}
       onError={() => <Signin />}
@@ -146,6 +150,27 @@ const NewChallenge = ({challengeData, onComplete, onReroll} : {
     points: getPointsByLevel(challengeData.difficult),
   };
 
+    const [remainingTime, setRemainingTime] = useState(
+    challengeProps.startTime.getTime() + challengeProps.timeLimit - Date.now()
+  );
+
+      useEffect(() => {
+    const intervalId = setInterval(() => {
+      const newRemainingTime = challengeProps.startTime.getTime() + challengeProps.timeLimit - Date.now();
+      setRemainingTime(Math.max(0, newRemainingTime));
+    }, 1000);
+    return () => clearInterval(intervalId);
+  }, [challengeProps.startTime, challengeProps.timeLimit]);
+
+    const handleCompleteClick = () => {
+    if (remainingTime <= 0) {
+      alert("챌린지 제한시간이 초과되었습니다.");
+      onReroll();
+    } else {
+      onComplete(challengeData.id);
+    }
+  };
+
     const challengeInfoProps: ChallengeInfoProps = {
     title: '이 챌린지를 추천하는 이유',
     infos: [challengeData.reason],
@@ -157,7 +182,11 @@ const NewChallenge = ({challengeData, onComplete, onReroll} : {
         오늘의 랜덤챌린지
       </h2>
       <div className="flex mt-8 mx-auto gap-10">
-        <ChallengeCard challengeProps={challengeProps} />
+        <ChallengeCard 
+          key={challengeData.content} 
+          challengeProps={challengeProps} 
+          remainingTime={remainingTime} 
+        />
         <ChallengeInfoCard challengeInfoProps={challengeInfoProps} />
       </div>
       <div className="flex justify-center gap-5">
@@ -178,28 +207,20 @@ const NewChallenge = ({challengeData, onComplete, onReroll} : {
 };
 
 
-const ChallengeCard = ({ challengeProps }: { challengeProps: ChallengeProps }) => {
+const ChallengeCard = ({ challengeProps, remainingTime }: { 
+  challengeProps: ChallengeProps;
+  remainingTime: number;
+}) => {
   const {
     title,
     icon,
     points,
     timeLimit,
-    startTime,
     difficulty,
     content,
   } = challengeProps;
   
   const navigate = useNavigate();
-
-  const [remainingTime, setRemainingTime] = useState(startTime.getTime() + timeLimit - Date.now());
-
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      const newRemainingTime = startTime.getTime() + timeLimit - Date.now();
-      setRemainingTime(Math.max(0, newRemainingTime)); 
-    }, 1000);
-    return () => clearInterval(intervalId);
-  }, [startTime, timeLimit]);
 
   const progressPercentage = (remainingTime / timeLimit) * 100;
 
