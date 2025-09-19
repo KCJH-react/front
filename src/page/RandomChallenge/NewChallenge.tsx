@@ -45,7 +45,8 @@ const CATEGORY_ICONS: { [key: string]: string } = {
 const DEFAULT_ICON = "⭐";
 
 const MakeNewChallenge = () => {
-  const {userId} = useAuth();
+  // const {userId} = useAuth();
+  const [userId, setUserId] = useState(11);
   const [challengeData, setChallengeData] = useState<Challenge | null>(null);
   const [isReroll, setIsReroll] = useState(false);
   const [error, setError] = useState<Error | null>(null);
@@ -53,16 +54,13 @@ const MakeNewChallenge = () => {
   const naviPage = (uri: string) => {
     navigate(uri);
   }
-
-
-
     const handleReroll = async () => {
     setIsReroll(true); 
     try {
       // if (!userId) return;
       const response = await fetchData({
         type: "get",
-        uri: `/api/chat/test?userid=${11}`,
+        uri: `/api/chat/test?userid=${userId}`,
       });
       if (response.data?.data) {
         setChallengeData(response.data.data);
@@ -88,7 +86,7 @@ const MakeNewChallenge = () => {
         type: "post",
         uri: `/api/challenge/complete`,
         props: {
-          userId: 11,
+          userId: userId,
           challengeId: challengeId,
         }
       });
@@ -115,7 +113,7 @@ const MakeNewChallenge = () => {
 
   return (
     <AxiosRender<Response<Challenge>>
-      uri={`/api/chat/challenge?userid=${11}`} 
+      uri={`/api/chat/challenge?userid=${userId}`} 
       type="get"
       onSuccess={(data) => {
         return <NewChallenge challengeData={data.data!} onComplete={handleComplete} onReroll={handleReroll}/>
