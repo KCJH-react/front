@@ -8,6 +8,7 @@ import {
 import { useAuth } from '../Auth/authUtility';
 import type { Response } from '../../common/type';
 import Signin from '../Auth/Signin';
+import { LoadingAni } from '../../common/animation/Ani';
 
 interface Challenge {
   id: number;
@@ -46,12 +47,13 @@ const DEFAULT_ICON = "⭐";
 const MakeNewChallenge = () => {
   const {userId} = useAuth();
   const [challengeData, setChallengeData] = useState<Challenge | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isReroll, setIsReroll] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
 
+
     const handleReroll = async () => {
-    setIsLoading(true); 
+    setIsReroll(true); 
     try {
       // if (!userId) return;
       const response = await fetchData({
@@ -67,7 +69,7 @@ const MakeNewChallenge = () => {
     } catch (err) {
       setError(err as Error);
     } finally {
-      setIsLoading(false);
+      setIsReroll(false);
     }
   };
 
@@ -96,6 +98,15 @@ const MakeNewChallenge = () => {
       alert((err as Error).message);
     }
   };
+
+    if(isReroll == true) {
+      return (
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+          <LoadingAni />
+          <p>새로운 챌린지를 받아오는 중입니다.</p>
+        </div>
+      )
+  }
 
   return (
     <AxiosRender<Response<Challenge>>
