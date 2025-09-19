@@ -9,6 +9,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import Items from './page/Items/Items';
 import EditPage from './page/Auth/EditPage';
 import RankingPage from './page/Ranking/RankingPage';
+import NewChallenge from './page/RandomChallenge/NewChallenge';
 
 function App() {
   return (
@@ -33,6 +34,9 @@ function App() {
         </Route>
         <Route path="/ranking" element={<Home />}>
           <Route index element={<RankingPage />} />
+        </Route>
+        <Route path="/challenge" element={<Home />}>
+          <Route path="" element={<NewChallenge />} />
         </Route>
       </Routes>
     </>
