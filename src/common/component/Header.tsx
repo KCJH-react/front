@@ -36,6 +36,9 @@ const Header = () => {
           <a
             href="#"
             className="flex-1 text-center text-md/6 font-bold text-gray-900"
+            onClick={() => {
+              naviPage('/personal');
+            }}
           >
             개인 챌린지
           </a>

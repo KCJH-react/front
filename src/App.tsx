@@ -10,6 +10,7 @@ import Items from './page/Items/Items';
 import EditPage from './page/Auth/EditPage';
 import RankingPage from './page/Ranking/RankingPage';
 import NewChallenge from './page/RandomChallenge/NewChallenge';
+import PersonalChallenge from './page/RandomChallenge/PersonalChallenge';
 
 function App() {
   return (
@@ -37,6 +38,9 @@ function App() {
         </Route>
         <Route path="/challenge" element={<Home />}>
           <Route path="" element={<NewChallenge />} />
+        </Route>
+                <Route path="/personal" element={<Home />}>
+          <Route path="" element={<PersonalChallenge />} />
         </Route>
       </Routes>
     </>
