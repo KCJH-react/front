@@ -2,133 +2,111 @@ import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import { fetchData } from '../../react-query/reactQuery';
 import { useAuth } from '../Auth/authUtility';
+import type { Response } from '../../common/type';
+import { LoadingAni } from '../../common/animation/Ani';
 
-const CATEGORY_OPTIONS = [
-  "미용", "봉사", "여행", "취업", "운동", 
-  "학습", "대중문화", "금융", "인간관계"
-];
+interface PersonalChallenge {
+  personalId: number;
+  personalName: string;
+  personalCompletionAction: string;
+  personalDuration: number;
+  personalCategory: string;
+}
 
-// PersonalChallengePage 컴포넌트 하나로 통합합니다.
+interface ChallengeItemCardProps {
+  challenge: PersonalChallenge;
+  onSelect: (id: number) => void; 
+}
+
+const ChallengeItemCard: React.FC<ChallengeItemCardProps> = ({ challenge, onSelect }) => {
+  return (
+    <div className="bg-white rounded-lg shadow-md p-5 flex flex-col justify-between transition-transform hover:scale-105">
+      <div>
+        <span className="inline-block bg-green-200 text-green-800 text-xs font-semibold px-2 py-1 rounded-full mb-2">
+          {challenge.personalCategory}
+        </span>
+        <h3 className="text-xl font-bold text-gray-800 mb-2">{challenge.personalName}</h3>
+        <p className="text-gray-600 text-sm mb-1">
+          <strong>완료 조건:</strong> {challenge.personalCompletionAction}
+        </p>
+        <p className="text-gray-600 text-sm">
+          <strong>제한 시간:</strong> {challenge.personalDuration}분
+        </p>
+      </div>
+      <button 
+        onClick={() => onSelect(challenge.personalId)}
+        className="mt-4 w-full bg-green-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-600 transition-colors duration-300"
+      >
+        고르기
+      </button>
+    </div>
+  );
+};
+
+
 const PersonalChallengePage = () => {
-  // const { userId } = useAuth();
+//   const { userId } = useAuth();
   const [userId, setUserId] = useState(11);
   const navigate = useNavigate();
   
-  const [challengeName, setChallengeName] = useState('');
-  const [completionCondition, setCompletionCondition] = useState('');
-  const [timeLimit, setTimeLimit] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState(CATEGORY_OPTIONS[0]);
+  const [challenges, setChallenges] = useState<PersonalChallenge[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
-  // 폼 제출 시 실행될 함수
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    
-    const formData = {
-      userid: Number(userId),
-      personalName: challengeName,
-      personalCompletionAction: completionCondition,
-      personalDuration: Number(timeLimit),
-      personalCategory: selectedCategory,
-    };
-    try {
-      await fetchData({
-        type: 'post',
-        uri: '/api/challenge/personalChallenge/saveChallenge',
-        props: formData
-      });
-      
-      console.log("제출된 챌린지 정보:", formData);
-      alert("나만의 챌린지가 생성되었습니다!");
-      navigate('/');
+  useEffect(() => {
+    if (userId) {
+      const loadChallenges = async () => {
+        setIsLoading(true);
+        setError(null);
+        try {
+          const response = await fetchData({
+            uri: `/api/challenge/personal?userId=${userId}`,
+            type: 'get',
+          });
 
-    } catch (err) {
-      alert((err as Error).message);
+          if (response.data?.data.data) {
+            setChallenges(response.data.data.data);
+          } else {
+            throw new Error("개인 챌린지 목록을 불러오지 못했습니다.");
+          }
+        } catch (err) {
+          setError(err as Error);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      loadChallenges();
+    } else {
+      setIsLoading(false);
     }
+  }, [userId]);
+
+  const handleSelectChallenge = (challengeId: number) => {
+    navigate(`/challenge/detail/${challengeId}`);
   };
 
+  if (isLoading) return <LoadingAni />;
+  if (error) return <div>에러가 발생했습니다: {error.message}</div>;
+
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      
-      <form 
-        onSubmit={handleSubmit}
-        className="w-full max-w-lg bg-white rounded-2xl shadow-lg p-8 space-y-6"
-      >
-        <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">나만의 챌린지 만들기</h2>
+    <div className="min-h-screen bg-gray-50 p-8">
+      <div className="max-w-7xl mx-auto">
+        <h1 className="text-4xl font-bold text-gray-800 mb-8">개인 챌린지 목록</h1>
         
-        {/* 챌린지 이름 입력 필드 */}
-        <div>
-          <label htmlFor="challengeName" className="block text-lg font-semibold text-gray-700 mb-2">
-            챌린지의 이름이 뭔가요?
-          </label>
-          <input
-            id="challengeName"
-            type="text"
-            value={challengeName}
-            onChange={(e) => setChallengeName(e.target.value)}
-            className="w-full p-3 bg-white border border-gray-300 rounded-lg shadow-inner focus:outline-none focus:ring-2 focus:ring-green-400"
-            placeholder="예: 매일 30분 책 읽기"
-          />
-        </div>
-
-        {/* 완료 조건 입력 필드 */}
-        <div>
-          <label htmlFor="completionCondition" className="block text-lg font-semibold text-gray-700 mb-2">
-            챌린지의 완료조건이 뭔가요?
-          </label>
-          <input
-            id="completionCondition"
-            type="text"
-            value={completionCondition}
-            onChange={(e) => setCompletionCondition(e.target.value)}
-            className="w-full p-3 bg-white border border-gray-300 rounded-lg shadow-inner focus:outline-none focus:ring-2 focus:ring-green-400"
-            placeholder="예: 책을 읽고 한 줄 요약 남기기"
-          />
-        </div>
-
-        {/* 제한 시간 입력 필드 */}
-        <div>
-          <label htmlFor="timeLimit" className="block text-lg font-semibold text-gray-700 mb-2">
-            챌린지의 제한 시간은 얼마인가요?
-          </label>
-          <input
-            id="timeLimit"
-            type="text"
-            value={timeLimit}
-            onChange={(e) => setTimeLimit(e.target.value)}
-            className="w-full p-3 bg-white border border-gray-300 rounded-lg shadow-inner focus:outline-none focus:ring-2 focus:ring-green-400"
-            placeholder="예: 24 (시간 단위)"
-          />
-        </div>
-
-        {/*  카테고리 선택 필드 */}
-        <div>
-          <label htmlFor="category-select" className="block text-lg font-semibold text-gray-700 mb-2">
-            이 챌린지의 카테고리가 뭔가요?
-          </label>
-          <select
-            id="category-select"
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-            className="w-full p-3 bg-white border border-gray-300 rounded-lg shadow-inner focus:outline-none focus:ring-2 focus:ring-green-400"
-          >
-            {CATEGORY_OPTIONS.map((category) => (
-              <option key={category} value={category}>
-                {category}
-              </option>
+        {challenges.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {challenges.map((challenge) => (
+              <ChallengeItemCard 
+                key={challenge.personalId} 
+                challenge={challenge} 
+                onSelect={handleSelectChallenge} 
+              />
             ))}
-          </select>
-        </div>
-
-        {/* 제출 버튼 */}
-        <div className="text-center pt-4">
-          <button 
-            type="submit"
-            className="w-1/2 bg-green-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-green-600 transition-colors duration-300"
-          >
-            챌린지 만들기
-          </button>
-        </div>
-      </form>
+          </div>
+        ) : (
+          <p className="text-center text-gray-500">생성된 개인 챌린지가 없습니다.</p>
+        )}
+      </div>
     </div>
   );
 };

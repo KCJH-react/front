@@ -136,6 +136,10 @@ const NewChallenge = ({challengeData, onComplete, onReroll} : {
       default: return 0;
     }
   };
+  const navigate = useNavigate();
+  const naviPage = (uri: string) => {
+    navigate(uri);
+  }
 
   const mainCategory = challengeData.category?.[0];
     const challengeProps: ChallengeProps = {
@@ -192,7 +196,8 @@ const NewChallenge = ({challengeData, onComplete, onReroll} : {
         onClick={() => onComplete(challengeData.id)}>
           완료하기
         </button>
-        <button className="mt-8 bg-sky-100 text-sky-800 font-semibold py-2 px-5 rounded-full shadow-md">
+        <button className="mt-8 bg-sky-100 text-sky-800 font-semibold py-2 px-5 rounded-full shadow-md"
+        onClick={() => naviPage('/challenge/makePersonal')}>
           나만의 챌린지 만들기
         </button>
         <button className="mt-8 bg-sky-100 text-sky-800 font-semibold py-2 px-5 rounded-full shadow-md"
