@@ -21,11 +21,13 @@ const DetailPersonalChallengePage = () => {
 //   const { userId } = useAuth();
   const [userId, setUserId] = useState(11);
   const navigate = useNavigate();
-  
   const { challengeId } = useParams<{ challengeId: string }>();
   const [challenge, setChallenge] = useState<PersonalChallengeDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
+  const [error, setError] = useState<Error | null>(null);  
+  const naviPage = (uri: string) => {
+    navigate(uri);
+  }
 
   useEffect(() => {
     const loadChallengeDetail = async () => {
@@ -52,6 +54,35 @@ const DetailPersonalChallengePage = () => {
       loadChallengeDetail();
     }
   }, [challengeId]);
+
+  //개인챌린지 완료용
+    const handleComplete = async (userId: number) => {
+    try {
+      // if (!userId) {
+      //   alert("로그인이 필요합니다.");
+      //   return;
+      // }
+      
+      const response = await fetchData({
+        type: "post",
+        uri: `/api/challenge/personalComplete`,
+        props: {
+          userid: userId
+        }
+      });
+      
+      if (response.data?.data.data === true) {
+        alert("챌린지 완료! 포인트를 획득했습니다.");
+        naviPage('/');
+      } else {
+        throw new Error("챌린지 완료 처리에 실패했습니다.");
+      }
+    } catch (err) {
+      alert((err as Error).message);
+    }
+  };
+
+//
 
   if (isLoading) return <LoadingAni />;
   if (error) return <Signin />;
@@ -85,7 +116,7 @@ const DetailPersonalChallengePage = () => {
         {/* 시작 버튼 */}
         <div className="text-center pt-4">
           <button
-            // onClick={}
+            onClick={() => handleComplete(userId)}
             className="w-full bg-blue-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-600 transition-colors duration-300"
           >
             챌린지 완료하기

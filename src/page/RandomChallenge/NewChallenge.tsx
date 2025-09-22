@@ -50,6 +50,7 @@ const MakeNewChallenge = () => {
   const [challengeData, setChallengeData] = useState<Challenge | null>(null);
   const [isReroll, setIsReroll] = useState(false);
   const [error, setError] = useState<Error | null>(null);
+  const [isSuccess, setIsSuccess] = useState(false);
   const navigate = useNavigate();
   const naviPage = (uri: string) => {
     navigate(uri);
