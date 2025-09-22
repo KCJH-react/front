@@ -65,10 +65,7 @@ const DetailPersonalChallengePage = () => {
       
       const response = await fetchData({
         type: "post",
-        uri: `/api/challenge/personalComplete`,
-        props: {
-          userid: userId
-        }
+        uri: `/api/challenge/personalComplete?userid=${userId}`,
       });
       
       if (response.data?.data.data === true) {

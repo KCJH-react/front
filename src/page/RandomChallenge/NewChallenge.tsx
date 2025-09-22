@@ -103,6 +103,7 @@ const MakeNewChallenge = () => {
     }
   };
 
+
     if(isReroll == true) {
       return (
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
@@ -112,11 +113,31 @@ const MakeNewChallenge = () => {
       )
   }
 
+if (isSuccess) {
+  return (
+    <div className="flex h-screen w-full flex-col justify-center items-center bg-gray-50 pb-52">
+      <div className="text-center p-8 bg-white rounded-lg shadow-md">
+        <p className="text-2xl font-bold text-gray-700">
+          이미 오늘의 챌린지를 완료했습니다!
+        </p>
+        <button className="mt-8 bg-green-100 text-sky-800 font-semibold py-2 px-5 rounded-full shadow-md"
+        onClick={handleReroll}>
+          새로운 챌린지 받아오기
+        </button>
+      </div>
+    </div>
+  );
+}
+
   return (
     <AxiosRender<Response<Challenge>>
       uri={`/api/chat/challenge?userid=${userId}`} 
       type="get"
       onSuccess={(data) => {
+        if (data.data?.success == true) {
+          setIsSuccess(true);
+        } else setIsSuccess(false);
+        console.log(data);
         return <NewChallenge challengeData={data.data!} onComplete={handleComplete} onReroll={handleReroll}/>
       }}
       onError={() => <Signin />}
