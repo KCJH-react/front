@@ -50,6 +50,7 @@ const MakeNewChallenge = () => {
   const [challengeData, setChallengeData] = useState<Challenge | null>(null);
   const [isReroll, setIsReroll] = useState(false);
   const [error, setError] = useState<Error | null>(null);
+  const [isSuccess, setIsSuccess] = useState(false);
   const navigate = useNavigate();
   const naviPage = (uri: string) => {
     navigate(uri);
@@ -102,6 +103,7 @@ const MakeNewChallenge = () => {
     }
   };
 
+
     if(isReroll == true) {
       return (
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
@@ -111,11 +113,31 @@ const MakeNewChallenge = () => {
       )
   }
 
+if (isSuccess) {
+  return (
+    <div className="flex h-screen w-full flex-col justify-center items-center bg-gray-50 pb-52">
+      <div className="text-center p-8 bg-white rounded-lg shadow-md">
+        <p className="text-2xl font-bold text-gray-700">
+          이미 오늘의 챌린지를 완료했습니다!
+        </p>
+        <button className="mt-8 bg-green-100 text-sky-800 font-semibold py-2 px-5 rounded-full shadow-md"
+        onClick={handleReroll}>
+          새로운 챌린지 받아오기
+        </button>
+      </div>
+    </div>
+  );
+}
+
   return (
     <AxiosRender<Response<Challenge>>
       uri={`/api/chat/challenge?userid=${userId}`} 
       type="get"
       onSuccess={(data) => {
+        if (data.data?.success == true) {
+          setIsSuccess(true);
+        } else setIsSuccess(false);
+        console.log(data);
         return <NewChallenge challengeData={data.data!} onComplete={handleComplete} onReroll={handleReroll}/>
       }}
       onError={() => <Signin />}
@@ -136,6 +158,10 @@ const NewChallenge = ({challengeData, onComplete, onReroll} : {
       default: return 0;
     }
   };
+  const navigate = useNavigate();
+  const naviPage = (uri: string) => {
+    navigate(uri);
+  }
 
   const mainCategory = challengeData.category?.[0];
     const challengeProps: ChallengeProps = {
@@ -192,7 +218,8 @@ const NewChallenge = ({challengeData, onComplete, onReroll} : {
         onClick={() => onComplete(challengeData.id)}>
           완료하기
         </button>
-        <button className="mt-8 bg-sky-100 text-sky-800 font-semibold py-2 px-5 rounded-full shadow-md">
+        <button className="mt-8 bg-sky-100 text-sky-800 font-semibold py-2 px-5 rounded-full shadow-md"
+        onClick={() => naviPage('/challenge/makePersonal')}>
           나만의 챌린지 만들기
         </button>
         <button className="mt-8 bg-sky-100 text-sky-800 font-semibold py-2 px-5 rounded-full shadow-md"
