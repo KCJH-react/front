@@ -18,8 +18,8 @@ interface PersonalChallengeDetail {
 
 
 const DetailPersonalChallengePage = () => {
-//   const { userId } = useAuth();
-  const [userId, setUserId] = useState(11);
+  const { userId } = useAuth();
+  // const [userId, setUserId] = useState(11);
   const navigate = useNavigate();
   const { challengeId } = useParams<{ challengeId: string }>();
   const [challenge, setChallenge] = useState<PersonalChallengeDetail | null>(null);

@@ -45,8 +45,8 @@ const CATEGORY_ICONS: { [key: string]: string } = {
 const DEFAULT_ICON = "⭐";
 
 const MakeNewChallenge = () => {
-  // const {userId} = useAuth();
-  const [userId, setUserId] = useState(11);
+  const {userId} = useAuth();
+  // const [userId, setUserId] = useState(11);
   const [challengeData, setChallengeData] = useState<Challenge | null>(null);
   const [isReroll, setIsReroll] = useState(false);
   const [error, setError] = useState<Error | null>(null);
@@ -78,10 +78,10 @@ const MakeNewChallenge = () => {
 
     const handleComplete = async (challengeId: number) => {
     try {
-      // if (!userId) {
-      //   alert("로그인이 필요합니다.");
-      //   return;
-      // }
+      if (!userId) {
+        alert("로그인이 필요합니다.");
+        return;
+      }
       
       const response = await fetchData({
         type: "post",
