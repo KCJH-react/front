@@ -9,8 +9,8 @@ const CATEGORY_OPTIONS = [
 ];
 
 const MakePersonalChallengePage = () => {
-  // const { userId } = useAuth();
-  const [userId, setUserId] = useState(11);
+  const { userId } = useAuth();
+  // const [userId, setUserId] = useState(11);
   const navigate = useNavigate();
   
   const [challengeName, setChallengeName] = useState('');

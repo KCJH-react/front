@@ -45,8 +45,8 @@ const ChallengeItemCard: React.FC<ChallengeItemCardProps> = ({ challenge, onSele
 
 
 const PersonalChallengePage = () => {
-//   const { userId } = useAuth();
-  const [userId, setUserId] = useState(11);
+  const { userId } = useAuth();
+  // const [userId, setUserId] = useState(11);
   const navigate = useNavigate();
   
   const [challenges, setChallenges] = useState<PersonalChallenge[]>([]);
