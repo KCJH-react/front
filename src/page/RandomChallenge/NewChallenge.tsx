@@ -30,6 +30,7 @@ interface ChallengeProps {
   startTime: Date;
   difficulty: "쉬움" | "중간" | "어려움";
   content: string;
+  reason: string;
 }
 
 interface ChallengeInfoProps {
@@ -58,7 +59,7 @@ const MakeNewChallenge = () => {
     const handleReroll = async () => {
     setIsReroll(true); 
     try {
-      // if (!userId) return;
+      if (!userId) return;
       const response = await fetchData({
         type: "get",
         uri: `/api/chat/test?userid=${userId}`,
@@ -172,6 +173,7 @@ const NewChallenge = ({challengeData, onComplete, onReroll} : {
     difficulty: challengeData.difficult,
     timeLimit: challengeData.duration * 60 * 1000,
     points: getPointsByLevel(challengeData.difficult),
+    reason: challengeData.reason,
   };
 
     const [remainingTime, setRemainingTime] = useState(
@@ -208,10 +210,10 @@ const NewChallenge = ({challengeData, onComplete, onReroll} : {
       <div className="flex mt-8 mx-auto gap-10">
         <ChallengeCard 
           key={challengeData.content} 
-          challengeProps={challengeProps} 
+          challengeProps={challengeProps}
           remainingTime={remainingTime} 
         />
-        <ChallengeInfoCard challengeInfoProps={challengeInfoProps} />
+        {/* <ChallengeInfoCard challengeInfoProps={challengeInfoProps} /> */}
       </div>
       <div className="flex justify-center gap-5">
         <button className="mt-8 bg-sky-100 text-sky-800 font-semibold py-2 px-5 rounded-full shadow-md"
@@ -243,6 +245,7 @@ const ChallengeCard = ({ challengeProps, remainingTime }: {
     timeLimit,
     difficulty,
     content,
+    reason,
   } = challengeProps;
   
   const navigate = useNavigate();
@@ -304,6 +307,11 @@ const ChallengeCard = ({ challengeProps, remainingTime }: {
       <div className="text-gray-700 leading-relaxed">
         {content}
       </div>
+      {/* 챌린지 추천이유 */}
+      <div>
+        <h2 className="text-center text-xl font-semibold text-gray-700 mb-2">추천이유</h2>
+        <p className="text-gray-600 bg-gray-50 p-4 rounded-lg">{reason}</p>
+      </div>
       {/* 시간 진행 바 */}
       <div className="space-y-1">
         <div className="flex justify-between text-sm font-medium text-gray-600">
@@ -322,21 +330,21 @@ const ChallengeCard = ({ challengeProps, remainingTime }: {
   );
 };
 
-const ChallengeInfoCard = ({ challengeInfoProps }: { challengeInfoProps: ChallengeInfoProps }) => {
-  const { title, infos } = challengeInfoProps;
+// const ChallengeInfoCard = ({ challengeInfoProps }: { challengeInfoProps: ChallengeInfoProps }) => {
+//   const { title, infos } = challengeInfoProps;
 
-  return (
-    <div className="max-w-md mx-auto bg-emerald-100 text-emerald-900 rounded-2xl shadow-lg p-6 space-y-4">
-      <h3 className="text-xl font-bold text-center">{title}</h3>
-      <div className="space-y-2 text-center">
-        {infos.map((infoText, index) => (
-          <p key={index} className="text-base">
-            {infoText}
-          </p>
-        ))}
-      </div>
-    </div>
-  );
-};
+//   return (
+//     <div className="max-w-md mx-auto bg-emerald-100 text-emerald-900 rounded-2xl shadow-lg p-6 space-y-4">
+//       <h3 className="text-xl font-bold text-center">{title}</h3>
+//       <div className="space-y-2 text-center">
+//         {infos.map((infoText, index) => (
+//           <p key={index} className="text-base">
+//             {infoText}
+//           </p>
+//         ))}
+//       </div>
+//     </div>
+//   );
+// };
 
 export default MakeNewChallenge;

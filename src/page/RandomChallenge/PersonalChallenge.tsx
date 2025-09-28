@@ -48,6 +48,9 @@ const PersonalChallengePage = () => {
   const { userId } = useAuth();
   // const [userId, setUserId] = useState(11);
   const navigate = useNavigate();
+  const naviPage = (uri: string) => {
+    navigate(uri);
+  };
   
   const [challenges, setChallenges] = useState<PersonalChallenge[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -60,7 +63,7 @@ const PersonalChallengePage = () => {
         setError(null);
         try {
           const response = await fetchData({
-            uri: `/api/challenge/personal?userId=${userId}`,
+            uri: `/api/v1/user/personal-challenge?userId=${userId}`,
             type: 'get',
           });
 
@@ -88,27 +91,36 @@ const PersonalChallengePage = () => {
   if (isLoading) return <LoadingAni />;
   if (error) return <div>에러가 발생했습니다: {error.message}</div>;
 
-  return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-7xl mx-auto">
-        <h1 className="text-4xl font-bold text-gray-800 mb-8">개인 챌린지 목록</h1>
-        
-        {challenges.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {challenges.map((challenge) => (
-              <ChallengeItemCard 
-                key={challenge.personalId} 
-                challenge={challenge} 
-                onSelect={handleSelectChallenge} 
-              />
-            ))}
-          </div>
-        ) : (
-          <p className="text-center text-gray-500">생성된 개인 챌린지가 없습니다.</p>
-        )}
+return (
+  <div className="min-h-screen bg-gray-50 p-8">
+    <div className="max-w-7xl mx-auto">
+      <h1 className="text-4xl font-bold text-gray-800 mb-8">개인 챌린지 목록</h1>
+      
+      {challenges.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {challenges.map((challenge) => (
+            <ChallengeItemCard 
+              key={challenge.personalId} 
+              challenge={challenge} 
+              onSelect={handleSelectChallenge} 
+            />
+          ))}
+        </div>
+      ) : (
+        <p className="text-center text-gray-500">생성된 개인 챌린지가 없습니다.</p>
+      )}
+      <div className="text-center mt-12">
+        <button 
+          onClick={() => {naviPage('/challenge/makePersonal');}}
+          className="bg-green-500 text-white font-bold py-3 px-8 rounded-lg hover:bg-green-600 transition-colors duration-300 text-lg"
+        >
+          나만의 챌린지 만들러 가기
+        </button>
       </div>
+
     </div>
-  );
+  </div>
+);
 };
 
 export default PersonalChallengePage;
