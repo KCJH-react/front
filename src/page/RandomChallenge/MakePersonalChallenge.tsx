@@ -10,7 +10,7 @@ const CATEGORY_OPTIONS = [
 
 const MakePersonalChallengePage = () => {
   const { userId } = useAuth();
-  // const [userId, setUserId] = useState(11);
+  // const [userId, setUserId] = useState(1);
   const navigate = useNavigate();
   
   const [challengeName, setChallengeName] = useState('');
@@ -32,7 +32,7 @@ const MakePersonalChallengePage = () => {
     try {
       await fetchData({
         type: 'post',
-        uri: '/api/challenge/personalChallenge/saveChallenge',
+        uri: '/api/personalChallenge/saveChallenge',
         props: formData
       });
       

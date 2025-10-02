@@ -46,7 +46,7 @@ const ChallengeItemCard: React.FC<ChallengeItemCardProps> = ({ challenge, onSele
 
 const PersonalChallengePage = () => {
   const { userId } = useAuth();
-  // const [userId, setUserId] = useState(11);
+  // const [userId, setUserId] = useState(1);
   const navigate = useNavigate();
   const naviPage = (uri: string) => {
     navigate(uri);
@@ -63,7 +63,7 @@ const PersonalChallengePage = () => {
         setError(null);
         try {
           const response = await fetchData({
-            uri: `/api/v1/user/personal-challenge?userId=${userId}`,
+            uri: `/api/personalChallenge/getPersonal?userId=${userId}`,
             type: 'get',
           });
 

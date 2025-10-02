@@ -9,6 +9,7 @@ import { useAuth } from '../Auth/authUtility';
 import type { Response } from '../../common/type';
 import Signin from '../Auth/Signin';
 import { LoadingAni } from '../../common/animation/Ani';
+import { addScaleCorrector } from 'framer-motion';
 
 interface Challenge {
   id: number;
@@ -47,7 +48,7 @@ const DEFAULT_ICON = "⭐";
 
 const MakeNewChallenge = () => {
   const {userId} = useAuth();
-  // const [userId, setUserId] = useState(11);
+  // const [userId, setUserId] = useState(1);
   const [challengeData, setChallengeData] = useState<Challenge | null>(null);
   const [isReroll, setIsReroll] = useState(false);
   const [error, setError] = useState<Error | null>(null);
@@ -62,7 +63,7 @@ const MakeNewChallenge = () => {
       if (!userId) return;
       const response = await fetchData({
         type: "get",
-        uri: `/api/chat/test?userid=${userId}`,
+        uri: `/api/randomChallenge/reroll?userid=${userId}`,
       });
       if (response.data?.data) {
         setChallengeData(response.data.data);
@@ -86,7 +87,7 @@ const MakeNewChallenge = () => {
       
       const response = await fetchData({
         type: "post",
-        uri: `/api/challenge/complete`,
+        uri: `/api/randomChallenge/complete`,
         props: {
           userId: userId,
           challengeId: challengeId,
@@ -132,7 +133,7 @@ if (isSuccess) {
 
   return (
     <AxiosRender<Response<Challenge>>
-      uri={`/api/chat/challenge?userid=${userId}`} 
+      uri={`/api/randomChallenge/challenge?userid=${userId}`} 
       type="get"
       onSuccess={(data) => {
         if (data.data?.success == true) {
@@ -217,7 +218,7 @@ const NewChallenge = ({challengeData, onComplete, onReroll} : {
       </div>
       <div className="flex justify-center gap-5">
         <button className="mt-8 bg-sky-100 text-sky-800 font-semibold py-2 px-5 rounded-full shadow-md"
-        onClick={() => onComplete(challengeData.id)}>
+        onClick={() => handleCompleteClick()}>
           완료하기
         </button>
         <button className="mt-8 bg-sky-100 text-sky-800 font-semibold py-2 px-5 rounded-full shadow-md"

@@ -19,7 +19,7 @@ interface PersonalChallengeDetail {
 
 const DetailPersonalChallengePage = () => {
   const { userId } = useAuth();
-  // const [userId, setUserId] = useState(11);
+  // const [userId, setUserId] = useState(1);
   const navigate = useNavigate();
   const { challengeId } = useParams<{ challengeId: string }>();
   const [challenge, setChallenge] = useState<PersonalChallengeDetail | null>(null);
@@ -34,7 +34,7 @@ const DetailPersonalChallengePage = () => {
       setIsLoading(true);
       try {
         const response = await fetchData({
-          uri: `/api/challenge/personal/${challengeId}`,
+          uri: `/api/personalChallenge/getPersonal/${challengeId}`,
           type: 'get',
         });
 
@@ -65,7 +65,7 @@ const DetailPersonalChallengePage = () => {
       
       const response = await fetchData({
         type: "post",
-        uri: `/api/challenge/personalComplete?userid=${userId}`,
+        uri: `/api/personalChallenge/personalComplete?userid=${userId}`,
       });
       
       if (response.data?.data.data === true) {
